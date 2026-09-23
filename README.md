@@ -2,7 +2,7 @@
 
 **Your first agentic worker. One box, on your network.**
 
-Staffbox is an open stack for running an agentic AI worker on a Mac mini inside a small company's own network: an open-source agent on local open-weight models, with a plain-text vault as the company's memory, installed and managed by the company's existing IT provider. This repository is the stack. The managed service, the hardware program and the partner channel are what Staffbox, Inc. sells around it.
+Staffbox is an open stack for running an agentic AI worker on a Mac mini inside a small company's own network: an open-source agent on local open-weight models, with a plain-text vault as the company's memory, installed and managed by the company's existing IT provider. This repository is the stack. The managed service ($695 a month including a monthly workflow review; founding sites $595 for life), the hardware program and the partner channel are what Staffbox, Inc. sells around it.
 
 Status, 23 September 2026: working draft. One unit runs inside Staffbox itself. Nothing is installed at a customer site yet.
 
