@@ -1,0 +1,5 @@
+#!/bin/sh
+# Install in a customer's vault repo: cp scripts/hooks/pre-commit <vault>/.git/hooks/ && chmod +x it.
+# Blocks a commit if the brain has broken links, bad frontmatter, or an edited log line.
+STAFFBOX="${STAFFBOX:-$HOME/staffbox-repo/bin/staffbox}"
+exec "$STAFFBOX" check "$(git rev-parse --show-toplevel)"

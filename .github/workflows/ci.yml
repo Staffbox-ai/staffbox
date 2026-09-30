@@ -13,4 +13,12 @@ jobs:
       - name: install.sh parses (zsh)
         run: zsh -n scripts/install.sh
       - name: python compiles
-        run: python -m py_compile scripts/bench.py
+        run: python -m py_compile scripts/bench.py staffbox/*.py
+      - name: unit tests (no model needed)
+        run: python -m unittest discover -s tests -v
+      - name: example brain is healthy
+        run: bin/staffbox check examples/peachtree-cabinet-works/vault
+      - name: template brain is healthy
+        run: bin/staffbox check profile/vault
+      - name: test set is reproducible
+        run: python examples/peachtree-cabinet-works/make_tests.py | diff - examples/peachtree-cabinet-works/tests.jsonl
