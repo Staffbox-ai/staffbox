@@ -58,6 +58,6 @@ def main(argv=None):
         meta = dict(company=company_name(a.vault), model=a.model, machine=a.machine, date=datetime.date.today().isoformat())
         out = pathlib.Path(a.out); out.parent.mkdir(parents=True, exist_ok=True)
         card = evals.scorecard(rows, meta)
-        out.with_suffix(".md").write_text(card)
-        out.with_suffix(".jsonl").write_text("".join(json.dumps(dict(r, **meta)) + "\n" for r in rows))
+        (out.parent / f"{out.name}.md").write_text(card)  # not with_suffix: model names like qwen3.8-27b contain dots
+        (out.parent / f"{out.name}.jsonl").write_text("".join(json.dumps(dict(r, **meta)) + "\n" for r in rows))
         print(card)

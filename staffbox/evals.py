@@ -52,11 +52,13 @@ def ask(host, model, vault, question, mode="brain", company="the company", num_c
         system = SYSTEM_BRAIN.format(company=company, context=ctx) + (CALC_RULE if mode == "brain+calc" else "")
     msgs = [{"role": "system", "content": system}, {"role": "user", "content": question}]
     tokens, calls = 0, 0
-    for _ in range(4):
+    for rnd in range(4):
         out, n = chat(host, model, msgs, num_ctx)
         tokens += n
         calcs = re.findall(r"(?m)^\s*CALC:\s*(.+)$", out)
-        if mode != "brain+calc" or not calcs or "ANSWER:" in out.split("CALC:")[-1]:
+        # Small models often write CALC lines and a guessed ANSWER in one reply; the first round's CALCs are
+        # always evaluated and sent back, so the final answer is written after seeing the exact results.
+        if mode != "brain+calc" or not calcs or (rnd > 0 and "ANSWER:" in out.split("CALC:")[-1]):
             break
         results = []
         for c in calcs:
@@ -65,7 +67,7 @@ def ask(host, model, vault, question, mode="brain", company="the company", num_c
             except Exception:
                 results.append(f"{c.strip()} = error (use numbers and + - * / only)")
             calls += 1
-        msgs += [{"role": "assistant", "content": out}, {"role": "user", "content": "Results:\n" + "\n".join(results) + "\nNow give the final ANSWER line."}]
+        msgs += [{"role": "assistant", "content": out}, {"role": "user", "content": "Results:\n" + "\n".join(results) + "\nUse these exact results (rounded to the cent where the procedure says so). Recheck your working, then give the final ANSWER line."}]
     return out, notes, tokens, calls
 
 
@@ -75,7 +77,8 @@ def final_answer(text):
 
 
 def money(s):
-    m = re.findall(r"\$?\s*([0-9][0-9,]*\.?[0-9]*)", s)
+    """The dollar amount in an answer: the last $-prefixed number, else the last number."""
+    m = re.findall(r"\$\s*([0-9][0-9,]*\.?[0-9]*)", s) or re.findall(r"([0-9][0-9,]*\.?[0-9]*)", s)
     return float(m[-1].replace(",", "").rstrip(".")) if m else None
 
 
@@ -105,7 +108,7 @@ def run(tests, host, model, vault, modes, company, workers=1, num_ctx=None, prog
             out, notes, tok, calls, ans, ok = f"ERROR {e}", [], 0, 0, f"ERROR {e}", False
         r = dict(id=t["id"], type=t["type"], mode=mode, ok=ok, answer=ans[:200], expect=t["expect"], notes=notes,
                  tokens=tok, calc_calls=calls, seconds=round(time.time() - t0, 1), raw=out[-1500:])
-        progress(f"{'PASS' if ok else 'FAIL'} {mode:<10} {t['id']:<12} {ans[:70]!r}")
+        progress(f"{'PASS' if ok else 'FAIL'} {mode:<10} {t['id']:<12} {ans[:70]!r}", flush=True)
         return r
     jobs = [(m, t) for m in modes for t in tests]
     with cf.ThreadPoolExecutor(workers) as ex:
@@ -129,6 +132,7 @@ def scorecard(rows, meta):
     secs = {m: sum(r["seconds"] for r in rows if r["mode"] == m) / max(1, sum(1 for r in rows if r["mode"] == m)) for m in modes}
     lines += ["", "Average seconds per answer: " + " · ".join(f"{m} {s:.1f}s" for m, s in secs.items()), "",
               "Modes: `none` = the model alone. `brain` = plus the notes retrieved from the vault. `brain+calc` = plus a calculator tool.", "",
+              "Read `none` as a general-purpose assistant with no company knowledge. It cannot pass routing (it does not know the queue names) or \"not in vault\" (it was never told the rule). What matters there is what it does instead: refuse, or invent an answer.", "",
               "## Misses", "", "| Mode | Test | Expected | Got |", "|---|---|---|---|"]
     for r in rows:
         if not r["ok"]:
