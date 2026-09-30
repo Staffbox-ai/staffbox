@@ -24,7 +24,7 @@ Python 3 standard library only, so there's nothing to install. `ask` and `eval` 
 
 ## Scorecard
 
-SCORECARD_TABLE
+First runs on an RTX 3090 (qwen3.8-27b) and a 16 GB Mac mini M4 (qwen3:8b) are being added to [`evals/results/`](evals/results/) on 30 September 2026.
 
 Every row was produced by `staffbox eval` and graded automatically. Every answer, raw, is in [`evals/results/`](evals/results/).
 
