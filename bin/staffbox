@@ -1,0 +1,4 @@
+#!/bin/sh
+# Run the staffbox CLI from a checkout without installing anything.
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+PYTHONPATH="$HERE${PYTHONPATH:+:$PYTHONPATH}" exec python3 -m staffbox "$@"

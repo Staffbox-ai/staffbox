@@ -17,5 +17,7 @@ s=re.sub(r"(?m)^(\s*default:\s*).*$", r"\1"+model, s, count=1)
 if "context_length" not in s: s=re.sub(r"(?m)^(\s*default:\s*"+re.escape(model)+r"\s*)$", r"\1\n  context_length: 65536\n  ollama_num_ctx: 65536", s, count=1)
 open(p,"w").write(s)
 PY
-echo "5/5 vault"; mkdir -p ~/staffbox/vault/sops; cp -n "$HERE/profile/vault/"*.md ~/staffbox/vault/ 2>/dev/null || true; cp -n "$HERE/profile/vault/sops/"*.md ~/staffbox/vault/sops/ 2>/dev/null || true
+echo "5/5 brain"; mkdir -p ~/staffbox/vault; [ -e ~/staffbox/vault/company.md ] || cp -R "$HERE/profile/vault/." ~/staffbox/vault/
+mkdir -p "$P/skills/staffbox-brain"; cp "$HERE/profile/skills/staffbox-brain/SKILL.md" "$P/skills/staffbox-brain/SKILL.md"
+mkdir -p ~/.local/bin; ln -sf "$HERE/bin/staffbox" ~/.local/bin/staffbox; ~/.local/bin/staffbox check ~/staffbox/vault || true
 echo "Done. Try:  cd ~/staffbox && $PROFILE -z \"Today is $(date +%F). Read vault/company.md and tell me what you know.\""

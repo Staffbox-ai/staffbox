@@ -1,0 +1,40 @@
+{"id": "quote-01", "type": "quote", "prompt": "Price 20 of DB-1822 in poplar, stained please.", "expect": 985.6}
+{"id": "quote-02", "type": "quote", "prompt": "Customer wants 60 slab door 24x30s, cherry, unfinished. How much for the line?", "expect": 2691.0}
+{"id": "quote-03", "type": "quote", "prompt": "Customer wants 50 dovetail drawer box 12x16s, maple, unfinished. How much for the line?", "expect": 1821.6}
+{"id": "quote-04", "type": "quote", "prompt": "Quote 48 x drawer front 6x24 (DF-0624) in cherry, stained. What is the line total?", "expect": 1155.96}
+{"id": "quote-05", "type": "quote", "prompt": "Price 60 of SD-2430 in white oak, stained please.", "expect": 3946.8}
+{"id": "quote-06", "type": "quote", "prompt": "Customer wants 24 shaker door 24x30s, maple, stained. How much for the line?", "expect": 1610.4}
+{"id": "quote-07", "type": "quote", "prompt": "Price 75 of RP-1824 in maple, painted please.", "expect": 5202.6}
+{"id": "quote-08", "type": "quote", "prompt": "Price 16 of CM-0896 in cherry, unfinished please.", "expect": 540.0}
+{"id": "quote-09", "type": "quote", "prompt": "Price 20 of RP-2430 in cherry, unfinished please.", "expect": 1775.0}
+{"id": "quote-10", "type": "quote", "prompt": "Quote 50 x shaker door 15x30 (SD-1530) in maple, unfinished. What is the line total?", "expect": 2403.5}
+{"id": "quote-11", "type": "quote", "prompt": "Price 30 of DB-1822 in cherry, painted please.", "expect": 1818.3}
+{"id": "quote-12", "type": "quote", "prompt": "Quote 100 x raised panel door 18x24 (RP-1824) in maple, unfinished. What is the line total?", "expect": 5869.6}
+{"id": "quote-13", "type": "quote", "prompt": "Price 16 of DF-0830 in maple, unfinished please.", "expect": 387.2}
+{"id": "quote-14", "type": "quote", "prompt": "Customer wants 8 crown moulding 8fts, cherry, painted. How much for the line?", "expect": 313.2}
+{"id": "quote-15", "type": "quote", "prompt": "Quote 60 x raised panel door 24x30 (RP-2430) in cherry, stained. What is the line total?", "expect": 5369.3}
+{"id": "quote-16", "type": "quote", "prompt": "Quote 100 x dovetail drawer box 12x16 (DB-1216) in poplar, unfinished. What is the line total?", "expect": 3312.0}
+{"id": "lookup-01", "type": "lookup", "prompt": "How long does a painted order take?", "expect": ["20 business days"]}
+{"id": "lookup-02", "type": "lookup", "prompt": "What's the lead time if the doors are unfinished?", "expect": ["10 business days"]}
+{"id": "lookup-03", "type": "lookup", "prompt": "What is our minimum order?", "expect": ["$250"]}
+{"id": "lookup-04", "type": "lookup", "prompt": "How much deposit do we take on a custom order?", "expect": ["50%"]}
+{"id": "lookup-05", "type": "lookup", "prompt": "Who can approve a special price for a big customer?", "expect": ["plant manager"]}
+{"id": "lookup-06", "type": "lookup", "prompt": "Can a customer return stock items, and within how long?", "expect": ["30 days"]}
+{"id": "lookup-07", "type": "lookup", "prompt": "A contractor wants it faster. What does a rush cost?", "expect": ["25%"]}
+{"id": "lookup-08", "type": "lookup", "prompt": "How far do we deliver for free?", "expect": ["50 miles"]}
+{"id": "lookup-09", "type": "lookup", "prompt": "Which wood species do we stock?", "expect": ["poplar", "maple", "white oak", "cherry"]}
+{"id": "lookup-10", "type": "lookup", "prompt": "An order has stained doors and painted drawer fronts. What lead time do we quote?", "expect": ["20 business days"]}
+{"id": "triage-01", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Can you price 24 slab doors 18x24 in maple, stained?\"", "expect": "quote"}
+{"id": "triage-02", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Where is PO-48213? It was due last week.\"", "expect": "order_status"}
+{"id": "triage-03", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Order PO-55120 arrived with 4 cracked doors.\"", "expect": "complaint"}
+{"id": "triage-04", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Our GC needs the CARB compliance cert for PO-31877.\"", "expect": "cert_request"}
+{"id": "triage-05", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Are you hiring for the finishing line?\"", "expect": "other"}
+{"id": "triage-06", "type": "triage", "prompt": "Route this email to one queue.\n\n\"The finish on PO-60412 does not match the sample.\"", "expect": "complaint"}
+{"id": "triage-07", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Checking ship date for PO-22904, customer is asking.\"", "expect": "order_status"}
+{"id": "triage-08", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Please send the FSC certificate for PO-70155.\"", "expect": "cert_request"}
+{"id": "unknown-01", "type": "unknown", "prompt": "What is the price of a 30x36 shaker door?", "expect": "NOT IN VAULT"}
+{"id": "unknown-02", "type": "unknown", "prompt": "What warranty do we give on painted finishes?", "expect": "NOT IN VAULT"}
+{"id": "unknown-03", "type": "unknown", "prompt": "Can we ship an order to Toronto, and what does it cost?", "expect": "NOT IN VAULT"}
+{"id": "unknown-04", "type": "unknown", "prompt": "Is the plant open on Saturdays?", "expect": "NOT IN VAULT"}
+{"id": "unknown-05", "type": "unknown", "prompt": "Price 12 walnut shaker doors 18x24, stained.", "expect": "NOT IN VAULT"}
+{"id": "unknown-06", "type": "unknown", "prompt": "What does delivery cost to Savannah, 250 miles away?", "expect": "NOT IN VAULT"}
