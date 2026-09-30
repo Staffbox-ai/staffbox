@@ -13,6 +13,4 @@ jobs:
       - name: install.sh parses (zsh)
         run: zsh -n scripts/install.sh
       - name: python compiles
-        run: python -m py_compile scripts/bench.py scripts/model.py
-      - name: unit-economics model runs
-        run: python scripts/model.py
+        run: python -m py_compile scripts/bench.py

@@ -22,7 +22,6 @@ Status, 23 September 2026: working draft. One unit runs inside Staffbox itself. 
 
 - `scripts/install.sh`: checks that Ollama and Hermes Agent are installed (it tells you where to get them if not), pulls a model, and creates a Hermes profile from the persona and vault templates. Read it before you run it; it is short.
 - `scripts/bench.py`: measures tokens per second at one, two and four concurrent requests against a local Ollama model. Run it before you promise anyone a team size.
-- `scripts/model.py`: the twelve-month unit-economics model behind the pricing, with every input labelled fact or guess. Change the numbers; it prints the scenarios.
 - `profile/SOUL.md.example`: the persona template for a company's first worker.
 - `profile/vault/`: the vault skeleton: `company.md`, `log.md`, `sops/`.
 - `docs/architecture.md`, `docs/data-policy.md`, `docs/measurements.md`.
