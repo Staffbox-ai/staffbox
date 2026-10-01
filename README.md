@@ -69,7 +69,7 @@ Full scorecards with every miss and every raw answer: Fieldstone [8B](evals/resu
 | `scripts/bench.py` | Tokens per second at 1, 2 and 4 concurrent requests |
 | `scripts/hooks/pre-commit` | Stops a broken brain or an edited log line from being committed |
 | `evals/results/` | Every published scorecard, with raw answers |
-| `docs/` | [brain](docs/brain.md), [architecture](docs/architecture.md), [data policy](docs/data-policy.md), [measurements](docs/measurements.md) |
+| `docs/` | [install](docs/install.md), [brain](docs/brain.md), [architecture](docs/architecture.md), [data policy](docs/data-policy.md), [measurements](docs/measurements.md) |
 
 ## How a site goes live
 

@@ -1,4 +1,5 @@
 #!/bin/sh
-# Run the staffbox CLI from a checkout without installing anything.
-HERE="$(cd "$(dirname "$0")/.." && pwd)"
+# Run the staffbox CLI from a checkout without installing anything. Works through symlinks (~/.local/bin/staffbox).
+SELF="$0"; [ -L "$SELF" ] && SELF="$(readlink -f "$SELF" 2>/dev/null || python3 -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' "$SELF")"
+HERE="$(cd "$(dirname "$SELF")/.." && pwd)"
 PYTHONPATH="$HERE${PYTHONPATH:+:$PYTHONPATH}" exec python3 -m staffbox "$@"
