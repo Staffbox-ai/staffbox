@@ -4,7 +4,8 @@
 # Options (environment):  PROFILE=zero  MODEL=qwen3:8b  EXTRA_MODELS="qwen3:14b"  SKIP_PROOF=1
 # What it does, in order: checks the Mac, installs Ollama (local-only), pulls the model, installs Hermes Agent,
 # creates the worker profile with cloud models OFF, sets up the brain and demo brains, then proves the unit
-# with a short scorecard and writes a unit card to ~/staffbox/UNIT.md.
+# with a short scorecard and writes a unit card to ~/staffbox/UNIT.md. It also brands the desktop and starts
+# the Hermes dashboard (127.0.0.1:9119) and a welcome page at login.
 set -e
 PROFILE=${PROFILE:-${1:-zero}}; MODEL=${MODEL:-${2:-qwen3:8b}}; EXTRA_MODELS=${EXTRA_MODELS:-}
 HERE="$(cd "$(dirname "$0")/.." && pwd)"; SB=~/staffbox; LOG=$SB/install.log
@@ -14,7 +15,7 @@ mkdir -p $SB ~/.local/bin; export PATH=$HOME/.local/bin:$PATH
 exec > >(tee -a $LOG) 2>&1
 
 if [ -t 1 ]; then G=$'\e[32m'; Y=$'\e[33m'; R=$'\e[31m'; B=$'\e[1m'; D=$'\e[2m'; N=$'\e[0m'; else G= Y= R= B= D= N=; fi
-STEP=0; TOTAL=8
+STEP=0; TOTAL=9
 step(){ STEP=$((STEP+1)); print -r -- ""; print -r -- "${B}[$STEP/$TOTAL] $1${N}"; }
 ok(){ print -r -- "  ${G}✓${N} $1"; }
 warn(){ print -r -- "  ${Y}!${N} $1"; }
@@ -113,6 +114,30 @@ mkdir -p $SB/examples; cp -Rn "$HERE/examples/." $SB/examples/ 2>/dev/null || tr
 ln -sf "$HERE/bin/staffbox" ~/.local/bin/staffbox
 staffbox check $SB/vault >/dev/null 2>&1 && ok "Company brain at $SB/vault (open it in Obsidian)" || warn "Brain check found problems: staffbox check $SB/vault"
 ok "Demo brains: $(ls $SB/examples | tr '\n' ' ')"
+
+step "Desktop, dashboard and welcome page"
+hermes -p "$PROFILE" config set dashboard.show_token_analytics true >/dev/null 2>&1 || true
+hermes -p "$PROFILE" tools disable image_gen >/dev/null 2>&1 || true   # cloud image service; stays off unless the customer adds a key
+cp "$HERE/profile/brand/wallpaper.png" $SB/wallpaper.png
+sed "s#__WALLPAPER__#$SB/wallpaper.png#" "$HERE/profile/brand/set-wallpaper.js" > $SB/set-wallpaper.js
+cp "$HERE/profile/brand/welcome.html" $SB/welcome.html
+sed -i '' "s#profile=zero#profile=$PROFILE#g; s#profile <code>zero</code>#profile <code>$PROFILE</code>#; s#qwen3:8b on this Mac#$MODEL on this Mac#" $SB/welcome.html
+agent(){ # label, then program arguments
+  local L=$1; shift; local A=""; for x in "$@"; do A="$A<string>$x</string>"; done
+  cat > ~/Library/LaunchAgents/ai.staffbox.$L.plist <<EOF
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict><key>Label</key><string>ai.staffbox.$L</string><key>ProgramArguments</key><array>$A</array>
+<key>EnvironmentVariables</key><dict><key>PATH</key><string>$HOME/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string></dict>
+<key>RunAtLoad</key><true/>$EXTRA<key>StandardOutPath</key><string>$HOME/Library/Logs/staffbox-$L.log</string><key>StandardErrorPath</key><string>$HOME/Library/Logs/staffbox-$L.log</string></dict></plist>
+EOF
+  launchctl bootout gui/$(id -u)/ai.staffbox.$L >/dev/null 2>&1 || true
+  launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/ai.staffbox.$L.plist >/dev/null 2>&1 || launchctl bootstrap user/$(id -u) ~/Library/LaunchAgents/ai.staffbox.$L.plist >/dev/null 2>&1 || true; }
+EXTRA="<key>KeepAlive</key><dict><key>SuccessfulExit</key><false/></dict>"; agent dashboard $HOME/.local/bin/hermes dashboard --no-open --skip-build --host 127.0.0.1 --port 9119
+EXTRA=""; agent wallpaper /usr/bin/osascript -l JavaScript $SB/set-wallpaper.js
+EXTRA=""; agent welcome /bin/sh -c "sleep 20; /usr/bin/open $SB/welcome.html"
+for i in {1..30}; do curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9119/ 2>/dev/null | grep -q 200 && break; sleep 2; done
+curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9119/ 2>/dev/null | grep -q 200 && ok "Hermes dashboard at http://127.0.0.1:9119 (this Mac only): chat, agents, models and tokens, keys, Kanban" || warn "Dashboard not answering yet; see ~/Library/Logs/staffbox-dashboard.log"
+ok "Staffbox wallpaper and welcome page ($SB/welcome.html) at every login"
 
 step "Proof: a short scorecard on this unit"
 CARD=""

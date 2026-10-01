@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Staffbox Zero</title>
+<style>
+:root{--bg:#0e201c;--ink:#eef5f1;--muted:#9fc7b6;--acc:#7ed6b4;--card:#15302a;--line:#244a40}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0e201c,#173a31);color:var(--ink);font:16px/1.5 -apple-system,"Avenir Next",Helvetica,sans-serif;min-height:100vh}
+.wrap{max-width:960px;margin:0 auto;padding:56px 32px}
+.brand{display:flex;align-items:center;gap:18px}.mark{width:54px;height:54px;border:5px solid var(--acc);border-radius:14px;display:grid;place-items:center}.mark i{width:14px;height:14px;border-radius:50%;background:var(--acc)}
+h1{font-size:44px;margin:0;font-style:italic;letter-spacing:-.5px}.sub{color:var(--muted);margin:4px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:36px 0}
+a.btn{display:block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;color:var(--ink);text-decoration:none}
+a.btn:hover{border-color:var(--acc)}a.btn b{display:block;font-size:18px;margin-bottom:4px}a.btn span{color:var(--muted);font-size:14px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:14px}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}td:first-child{color:var(--muted);width:150px}
+code{background:#0b1a17;padding:2px 6px;border-radius:6px;font-size:13px}.foot{color:var(--muted);font-size:13px;margin-top:28px}
+</style></head><body><div class="wrap">
+<div class="brand"><div class="mark"><i></i></div><div><h1>Staffbox</h1><p class="sub">Zero · your on-site AI worker · your data stays in this building</p></div></div>
+<div class="grid">
+<a class="btn" href="http://127.0.0.1:9119/?profile=zero"><b>Dashboard</b><span>Chat with Zero, sessions, models, token use, keys and agents</span></a>
+<a class="btn" href="http://127.0.0.1:9119/models?profile=zero"><b>Models and tokens</b><span>What runs on this box and how much it is used</span></a>
+<a class="btn" href="http://127.0.0.1:9119/keys?profile=zero"><b>AI keys</b><span>Optional: add your own cloud AI key. Off until you do.</span></a>
+</div>
+<table>
+<tr><td>Worker</td><td>Hermes Agent, profile <code>zero</code></td></tr>
+<tr><td>Model</td><td>qwen3:8b on this Mac (Ollama, 127.0.0.1 only)</td></tr>
+<tr><td>Cloud AI</td><td>Off: no fallback providers, no API keys</td></tr>
+<tr><td>Brain</td><td><code>~/staffbox/vault</code> (open in Obsidian) · demo brains in <code>~/staffbox/examples</code></td></tr>
+<tr><td>Task board</td><td><code>hermes kanban list</code> · Kanban tab in the dashboard</td></tr>
+<tr><td>Try it</td><td><code>staffbox ask ~/staffbox/examples/fieldstone-it/vault "Client wants 12 MON-27 monitors set up. How much for the line?"</code></td></tr>
+<tr><td>Unit card</td><td><code>~/staffbox/UNIT.md</code></td></tr>
+</table>
+<p class="foot">Support: hadi@staffbox.ai · staffbox.ai</p>
+</div></body></html>
