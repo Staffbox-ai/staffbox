@@ -1,6 +1,6 @@
 # Installing a Staffbox unit
 
-For the IT provider doing the install. About an hour, most of it downloads. No admin password is needed after macOS setup, and nothing is sent to a cloud AI service.
+For the IT provider doing the install, on a Mac (mini or Studio). For a Linux + NVIDIA unit, see [hardware.md](hardware.md#staffbox-custom-linux--nvidia). About an hour, most of it downloads. No admin password is needed after macOS setup, and nothing is sent to a cloud AI service.
 
 ## What you need
 - A Mac mini with Apple silicon (32 GB memory recommended; 16 GB runs the 8B model), power, a wired network port with internet access.

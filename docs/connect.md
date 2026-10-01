@@ -29,16 +29,17 @@ To remove someone later, delete their line. The unit accepts keys only; password
 ssh <account>@<unit-address> hostname
 ```
 
-## Option 1: the Hermes desktop app
+## Option 1: the Hermes desktop app (easiest for everyday use)
 
 1. Download the app for your system from [Nous Research's releases page](https://github.com/NousResearch/hermes-agent/releases) (Windows, macOS, Linux) and install it.
 2. Open **Settings → Connections → Add**, choose **SSH**, and fill in:
    - Host: the unit's address; user: `<account>`; key: the key you made above.
    - Hermes path on the unit: `/Users/<account>/.local/bin/hermes`
    - Profile: `zero` (the worker's profile)
+   - On a Linux unit the Hermes path is `/home/<account>/.local/bin/hermes`.
 3. Connect. The app starts the Hermes server on the unit over SSH. Chats, tools, files and the brain all run on the unit, not on your computer.
 
-## Option 2: a web browser
+## Option 2: a web browser (a fallback; keep the tunnel window open)
 
 1. Open a tunnel and leave the window open:
    ```sh
