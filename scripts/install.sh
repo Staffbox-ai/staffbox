@@ -51,15 +51,16 @@ cat > $PL <<EOF
 <plist version="1.0"><dict>
 <key>Label</key><string>ai.staffbox.ollama</string>
 <key>ProgramArguments</key><array><string>$OLLAMA</string><string>serve</string></array>
-<key>EnvironmentVariables</key><dict><key>OLLAMA_HOST</key><string>127.0.0.1:11434</string><key>OLLAMA_KEEP_ALIVE</key><string>30m</string></dict>
+<key>EnvironmentVariables</key><dict><key>OLLAMA_HOST</key><string>127.0.0.1:11434</string><key>OLLAMA_KEEP_ALIVE</key><string>24h</string><key>OLLAMA_CONTEXT_LENGTH</key><string>65536</string><key>OLLAMA_MAX_LOADED_MODELS</key><string>1</string><key>OLLAMA_FLASH_ATTENTION</key><string>1</string><key>OLLAMA_KV_CACHE_TYPE</key><string>q8_0</string></dict>
 <key>RunAtLoad</key><true/><key>KeepAlive</key><true/>
 <key>StandardOutPath</key><string>$HOME/Library/Logs/ollama.log</string><key>StandardErrorPath</key><string>$HOME/Library/Logs/ollama.log</string>
 </dict></plist>
 EOF
-curl -s localhost:11434/api/version >/dev/null 2>&1 || launchctl bootstrap gui/$(id -u) $PL 2>/dev/null || launchctl bootstrap user/$(id -u) $PL 2>/dev/null || true
+launchctl bootout gui/$(id -u)/ai.staffbox.ollama >/dev/null 2>&1 || true; sleep 1
+launchctl bootstrap gui/$(id -u) $PL 2>/dev/null || launchctl bootstrap user/$(id -u) $PL 2>/dev/null || true
 for i in {1..30}; do curl -s localhost:11434/api/version >/dev/null 2>&1 && break; sleep 1; done
 curl -s localhost:11434/api/version >/dev/null 2>&1 || die "Ollama did not start. See ~/Library/Logs/ollama.log"
-ok "Ollama $($OLLAMA --version 2>/dev/null | awk '{print $NF}') running on this Mac only (127.0.0.1), starts at login"
+ok "Ollama $($OLLAMA --version 2>/dev/null | awk '{print $NF}') running on this Mac only (127.0.0.1), starts at login; model kept warm 24 h, one model, one context size"
 
 step "Model"
 for M in $MODEL ${=EXTRA_MODELS}; do
@@ -161,16 +162,28 @@ EOF
   launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/ai.staffbox.$L.plist >/dev/null 2>&1 || launchctl bootstrap user/$(id -u) ~/Library/LaunchAgents/ai.staffbox.$L.plist >/dev/null 2>&1 || true; }
 EXTRA="<key>KeepAlive</key><dict><key>SuccessfulExit</key><false/></dict>"; agent dashboard $HOME/.local/bin/hermes dashboard --no-open --skip-build --host 127.0.0.1 --port 9119
 EXTRA=""; agent wallpaper /usr/bin/osascript -l JavaScript $SB/set-wallpaper.js
-EXTRA=""; agent welcome /bin/sh -c "sleep 20; /usr/bin/open $SB/welcome.html"
+FS_URL="obsidian://open?path=$FS_ENC"
+cat > $SB/login.sh <<EOF
+#!/bin/sh
+# Staffbox login: warm the model, show Ollama in the menu bar, open the brain in Obsidian, then the welcome page.
+sleep 15
+curl -s localhost:11434/api/generate -d '{"model":"$MODEL","prompt":"","keep_alive":"24h"}' >/dev/null 2>&1
+/usr/bin/open -g -a Ollama
+[ -d /Applications/Obsidian.app ] && /usr/bin/open -a Obsidian "$FS_URL"
+sleep 4
+/usr/bin/open $SB/welcome.html
+EOF
+chmod +x $SB/login.sh
+EXTRA=""; agent welcome /bin/sh $SB/login.sh
 for i in {1..30}; do curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9119/ 2>/dev/null | grep -q 200 && break; sleep 2; done
 curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9119/ 2>/dev/null | grep -q 200 && ok "Hermes dashboard at http://127.0.0.1:9119 (this Mac only): chat, agents, models and tokens, keys, Kanban" || warn "Dashboard not answering yet; see ~/Library/Logs/staffbox-dashboard.log"
-ok "Staffbox wallpaper and welcome page ($SB/welcome.html) at every login"
+ok "At every login: model warmed, Ollama in the menu bar, the brain open in Obsidian, Staffbox wallpaper and welcome page"
 
 step "Proof: a short scorecard on this unit"
 CARD=""
 if [ -z "$SKIP_PROOF" ]; then
   OUT=$(cd / && staffbox eval $SB/examples/fieldstone-it/vault $SB/examples/fieldstone-it/tests.jsonl --model $MODEL --modes brain+quote \
-        --limit 10 --num-ctx 12288 --machine "$(scutil --get ComputerName 2>/dev/null)" --out $SB/install-proof 2>/dev/null | grep -m1 '\*\*all\*\*' || true)
+        --limit 10 --machine "$(scutil --get ComputerName 2>/dev/null)" --out $SB/install-proof 2>/dev/null | grep -m1 '\*\*all\*\*' || true)
   CARD=$(print -r -- "$OUT" | sed -E 's/.*\| ([0-9]+\/[0-9]+ \([0-9]+%\)).*/\1/')
   [ -n "$CARD" ] && ok "Fieldstone IT demo, first 10 questions: $CARD (full results: $SB/install-proof.md)" || warn "Scorecard did not finish; run it later with staffbox eval"
 else warn "Skipped (SKIP_PROOF=1)"; fi
