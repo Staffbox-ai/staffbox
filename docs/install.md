@@ -32,4 +32,5 @@ The installer prints eight numbered steps and stops with a plain-English fix if 
 ## 3. Hand-over (5 min)
 - Show the customer `~/staffbox/UNIT.md`: model, versions, "cloud AI: off", and the install proof score.
 - Turn Remote Login off unless the support agreement says otherwise.
+- Give each person who will use it their own SSH key and point them to [connect.md](connect.md) (Hermes desktop app on Windows or Mac, or a browser).
 - Next: load 30 to 50 of the customer's own past requests and run their day-0 scorecard (`staffbox eval`).
