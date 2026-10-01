@@ -31,6 +31,10 @@ The installer prints eight numbered steps and stops with a plain-English fix if 
 
 ## 3. Hand-over (5 min)
 - Show the customer `~/staffbox/UNIT.md`: model, versions, "cloud AI: off", and the install proof score.
-- Remote Login: turn it off, or keep it on key-only (password logins disabled) if the customer agrees in writing to remote support.
+- Remote Login: turn it off, or keep it on key-only if the customer agrees in writing to remote support. Key-only means adding each person's public key to `~/.ssh/authorized_keys` first, then:
+  ```sh
+  printf 'PasswordAuthentication no\nKbdInteractiveAuthentication no\n' | sudo tee /etc/ssh/sshd_config.d/100-staffbox-keys-only.conf
+  ```
+  Test that your key still logs in before you close the session.
 - Give each person who will use it their own SSH key and point them to [connect.md](connect.md) (Hermes desktop app on Windows or Mac, or a browser).
 - Next: load 30 to 50 of the customer's own past requests and run their day-0 scorecard (`staffbox eval`).
