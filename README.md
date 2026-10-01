@@ -50,7 +50,7 @@ Full scorecards with every miss and every raw answer: Fieldstone [8B](evals/resu
 
 | Layer | Component | License |
 |---|---|---|
-| Hardware | Apple Mac mini, 32 GB unified memory recommended (16 GB is the floor we measured); Mac Studio when a site's test needs a bigger model | n/a |
+| Hardware | Three tiers, see [docs/hardware.md](docs/hardware.md): **mini** (Mac mini, 32 GB recommended, 16 GB measured), **Studio** (Mac Studio, for 27B+ models or many sites on one box), **custom** (Linux + NVIDIA GPU, measured on an RTX 3090) | n/a |
 | Agent | [Hermes Agent](https://github.com/NousResearch/hermes-agent) by Nous Research, with the `staffbox-brain` skill | MIT |
 | Models | Open-weight models served by Ollama. Cloud burst is optional and runs on the customer's own key | Ollama MIT; model licenses vary |
 | Brain | A Markdown vault with frontmatter and `[[links]]`, checked by `staffbox check`, with an append-only log. See [docs/brain.md](docs/brain.md) | Your content |
@@ -69,7 +69,7 @@ Full scorecards with every miss and every raw answer: Fieldstone [8B](evals/resu
 | `scripts/bench.py` | Tokens per second at 1, 2 and 4 concurrent requests |
 | `scripts/hooks/pre-commit` | Stops a broken brain or an edited log line from being committed |
 | `evals/results/` | Every published scorecard, with raw answers |
-| `docs/` | [install](docs/install.md), [brain](docs/brain.md), [architecture](docs/architecture.md), [data policy](docs/data-policy.md), [measurements](docs/measurements.md) |
+| `docs/` | [install](docs/install.md), [hardware](docs/hardware.md), [brain](docs/brain.md), [architecture](docs/architecture.md), [data policy](docs/data-policy.md), [measurements](docs/measurements.md) |
 
 ## How a site goes live
 
