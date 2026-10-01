@@ -122,6 +122,33 @@ cp "$HERE/profile/brand/wallpaper.png" $SB/wallpaper.png
 sed "s#__WALLPAPER__#$SB/wallpaper.png#" "$HERE/profile/brand/set-wallpaper.js" > $SB/set-wallpaper.js
 cp "$HERE/profile/brand/welcome.html" $SB/welcome.html
 sed -i '' "s#profile=zero#profile=$PROFILE#g; s#profile <code>zero</code>#profile <code>$PROFILE</code>#; s#qwen3:8b on this Mac#$MODEL on this Mac#" $SB/welcome.html
+FS_ENC=$(python3 -c 'import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1],safe=""))' "$SB/examples/fieldstone-it/vault")
+sed -i '' "s#__FIELDSTONE__#$FS_ENC#" $SB/welcome.html
+if [ ! -d /Applications/Obsidian.app ] && [ -z "$SKIP_OBSIDIAN" ]; then   # Obsidian: the brain as a notebook people can browse
+  DMG=$(curl -fsSL "https://api.github.com/repos/obsidianmd/obsidian-releases/releases?per_page=10" | python3 -c 'import json,sys
+for r in json.load(sys.stdin):
+    d=[a["browser_download_url"] for a in r["assets"] if a["name"].endswith(".dmg")]
+    if d: print(d[0]); break' 2>/dev/null)
+  if [ -n "$DMG" ] && curl -fsSL -o /tmp/obsidian.dmg "$DMG" && hdiutil attach -nobrowse -quiet /tmp/obsidian.dmg -mountpoint /tmp/obsmnt; then
+    ditto /tmp/obsmnt/Obsidian.app /Applications/Obsidian.app; hdiutil detach -quiet /tmp/obsmnt; rm -f /tmp/obsidian.dmg
+    codesign -dv /Applications/Obsidian.app 2>&1 | grep -q "TeamIdentifier=6JSW4SJWN9" || { rm -rf /Applications/Obsidian.app; warn "Obsidian signature did not match its publisher; removed"; }
+  else warn "Obsidian download failed; install it later from obsidian.md"; fi
+fi
+if [ -d /Applications/Obsidian.app ]; then
+  mkdir -p "$HOME/Library/Application Support/obsidian"
+  python3 - "$SB" <<'PY'
+import json, os, sys, time
+sb = sys.argv[1]; p = os.path.expanduser("~/Library/Application Support/obsidian/obsidian.json")
+cfg = json.load(open(p)) if os.path.exists(p) else {"vaults": {}}
+known = {v["path"] for v in cfg.get("vaults", {}).values()}
+now = int(time.time() * 1000)
+for i, (key, path) in enumerate([("sbfieldstone", sb + "/examples/fieldstone-it/vault"), ("sbcompany", sb + "/vault"), ("sbpeachtree", sb + "/examples/peachtree-cabinet-works/vault")]):
+    if path not in known:
+        cfg.setdefault("vaults", {})[key] = {"path": path, "ts": now - i * 1000}
+json.dump(cfg, open(p, "w"))
+PY
+  ok "Obsidian with the company brain and both demo brains"
+fi
 agent(){ # label, then program arguments
   local L=$1; shift; local A=""; for x in "$@"; do A="$A<string>$x</string>"; done
   cat > ~/Library/LaunchAgents/ai.staffbox.$L.plist <<EOF
