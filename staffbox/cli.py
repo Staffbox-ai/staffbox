@@ -3,11 +3,12 @@
   staffbox check   VAULT                       lint frontmatter, links, dates; log.md append-only
   staffbox context VAULT "question"            print the notes the worker would read
   staffbox ask     VAULT "question" [--model]  answer from the brain with a local model
+  staffbox quote   VAULT "request" [--sku --qty --opt k=v]  price one line from the vault's pricing notes (no model)
   staffbox log     VAULT "asked" "did" [--could-not ...]   append one line to log.md
   staffbox eval    VAULT TESTS.jsonl [--model --host --modes --out]   run the scorecard
 """
 import argparse, datetime, json, os, pathlib, platform, sys
-from . import brain, evals
+from . import actions, brain, evals
 
 HOST = os.environ.get("OLLAMA_HOST_URL", "http://localhost:11434")
 
@@ -28,7 +29,9 @@ def main(argv=None):
     s = sub.add_parser("check"); s.add_argument("vault")
     s = sub.add_parser("context"); s.add_argument("vault"); s.add_argument("question")
     s = sub.add_parser("ask"); s.add_argument("vault"); s.add_argument("question")
-    s.add_argument("--model", default="qwen3:8b"); s.add_argument("--host", default=HOST); s.add_argument("--mode", default="brain+calc")
+    s.add_argument("--model", default="qwen3:8b"); s.add_argument("--host", default=HOST); s.add_argument("--mode", default="brain+quote")
+    s = sub.add_parser("quote"); s.add_argument("vault"); s.add_argument("request")
+    s.add_argument("--sku", default=""); s.add_argument("--qty", type=int, default=0); s.add_argument("--opt", action="append", default=[])
     s = sub.add_parser("log"); s.add_argument("vault"); s.add_argument("asked"); s.add_argument("did"); s.add_argument("--could-not", default="nothing")
     s = sub.add_parser("eval"); s.add_argument("vault"); s.add_argument("tests")
     s.add_argument("--model", default="qwen3:8b"); s.add_argument("--host", default=HOST)
@@ -50,6 +53,13 @@ def main(argv=None):
     if a.cmd == "ask":
         out, notes, _, calls = evals.ask(a.host, a.model, a.vault, a.question, a.mode, company_name(a.vault))
         print(out); print(f"\n[notes read: {', '.join(notes)}; calculator calls: {calls}]", file=sys.stderr)
+    if a.cmd == "quote":
+        pricing = actions.load_pricing(a.vault)
+        opts = dict(o.split("=", 1) for o in a.opt if "=" in o)
+        sku, qty, opts = actions.resolve(pricing, a.request, a.sku.upper(), a.qty, opts)
+        total, work = actions.quote(pricing, sku, qty, opts)
+        print(work if total is None else f"{work}\nANSWER: ${total:,.2f}")
+        sys.exit(0 if total is not None else 2)
     if a.cmd == "log":
         print(brain.append_log(a.vault, a.asked, a.did, a.could_not), end="")
     if a.cmd == "eval":

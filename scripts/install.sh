@@ -19,5 +19,7 @@ open(p,"w").write(s)
 PY
 echo "5/5 brain"; mkdir -p ~/staffbox/vault; [ -e ~/staffbox/vault/company.md ] || cp -R "$HERE/profile/vault/." ~/staffbox/vault/
 mkdir -p "$P/skills/staffbox-brain"; cp "$HERE/profile/skills/staffbox-brain/SKILL.md" "$P/skills/staffbox-brain/SKILL.md"
-mkdir -p ~/.local/bin; ln -sf "$HERE/bin/staffbox" ~/.local/bin/staffbox; ~/.local/bin/staffbox check ~/staffbox/vault || true
+mkdir -p ~/staffbox/examples; cp -Rn "$HERE/examples/." ~/staffbox/examples/ 2>/dev/null || true  # demo brains (fictional), usable offline
+mkdir -p ~/.local/bin; ln -sf "$HERE/bin/staffbox" ~/.local/bin/staffbox; [ -e ~/.local/bin/$PROFILE ] || printf '#!/bin/sh\nexec hermes -p %s "$@"\n' "$PROFILE" > ~/.local/bin/$PROFILE && chmod +x ~/.local/bin/$PROFILE  # "zero -z ..." shortcut
+ ~/.local/bin/staffbox check ~/staffbox/vault || true
 echo "Done. Try:  cd ~/staffbox && $PROFILE -z \"Today is $(date +%F). Read vault/company.md and tell me what you know.\""
