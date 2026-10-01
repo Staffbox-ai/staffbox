@@ -36,6 +36,8 @@ Both demo test sets, 40 questions each, graded by machine, 30 September 2026, on
 | `qwen3.8:27b` | Fieldstone IT | 2/40 | 39/40 | 39/40 | **40/40** |
 | `qwen3.8:27b` | Peachtree Cabinet Works | 2/40 | 39/40 | 37/40 | **39/40** |
 
+**On the Mac mini itself** (M4, 16 GB, the unit we leave at a pilot; overnight 30 Sep to 1 Oct, same harness): `qwen3:8b` with the quote action scored **40/40** on Fieldstone IT and **39/40** on Peachtree, the same as on the Dell. Speed varied a lot on this box: median 19 s per answer on Fieldstone and 112 s on Peachtree, with some answers over 3 minutes. `qwen3:14b` does not fit comfortably in 16 GB: 32 of its answers hit the 10-minute timeout, so its scorecard measures the box, not the model. Files: [Fieldstone 8B](evals/results/2026-10-01-fieldstone-it-mac-mini-m4-16gb-qwen3-8b-quote.md) · [Peachtree 8B](evals/results/2026-10-01-peachtree-cabinet-works-mac-mini-m4-16gb-qwen3-8b-quote.md) · [Fieldstone 14B](evals/results/2026-10-01-fieldstone-it-mac-mini-m4-16gb-qwen3-14b-quote.md).
+
 What this shows:
 - **The brain is most of the gain.** Alone, both models refused most questions or made answers up. With the brain they answered the policy and runbook questions and declined the ones the brain does not cover.
 - **Quotes were the weak spot, and the quote action fixes them.** The 8B model found the right numbers but picked the wrong discount tier or skipped a step; a calculator did not help. With the quote action, a short routing call reads the item, quantity and options, and code prices the line from the vault's own price list, surcharge and discount tables (`staffbox/actions.py`). Every quote in both sets was then exact, and unpriced items (walnut, a 30x36 door, iPads) were declined instead of guessed.
