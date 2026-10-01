@@ -27,7 +27,7 @@ Two demo brains, both fictional, each with a 40-question test set (16 quotes, 10
 
 ## Scorecard
 
-Both demo test sets, 40 questions each, graded by machine, 1 October 2026, on a Dell Precision 5820 with an RTX 3090 through Ollama. `qwen3:8b` is the model a 16 GB Mac mini runs; accuracy depends on the model, speed on the box (see [docs/measurements.md](docs/measurements.md)).
+Both demo test sets, 40 questions each, graded by machine, 30 September 2026, on a Dell Precision 5820 with an RTX 3090 through Ollama. `qwen3:8b` is the model a 16 GB Mac mini runs; accuracy depends on the model, speed on the box (see [docs/measurements.md](docs/measurements.md)).
 
 | Model | Brain | Alone | + brain | + brain + calculator | + brain + quote action |
 |---|---|---|---|---|---|
@@ -42,7 +42,7 @@ What this shows:
 - **The remaining miss** is the same in both models: "Are you hiring?" was answered "not in vault" instead of being routed to the `other` queue.
 - The test prompts are templated and the data is fictional. A real site's scorecard uses 30 to 50 of its own past requests.
 
-Full scorecards with every miss and every raw answer: Fieldstone [8B](evals/results/2026-10-01-fieldstone-it-dell-3090-qwen3-8b.md) · [27B](evals/results/2026-10-01-fieldstone-it-dell-3090-qwen3.8-27b-64k.md); Peachtree [8B](evals/results/2026-10-01-peachtree-cabinet-works-dell-3090-qwen3-8b.md) · [27B](evals/results/2026-10-01-peachtree-cabinet-works-dell-3090-qwen3.8-27b-64k.md). The first Peachtree runs (30 September, before the quote action) are kept unedited next to them.
+Full scorecards with every miss and every raw answer: Fieldstone [8B](evals/results/2026-09-30-fieldstone-it-dell-3090-qwen3-8b.md) · [27B](evals/results/2026-09-30-fieldstone-it-dell-3090-qwen3.8-27b-64k.md); Peachtree [8B](evals/results/2026-09-30-peachtree-cabinet-works-dell-3090-qwen3-8b.md) · [27B](evals/results/2026-09-30-peachtree-cabinet-works-dell-3090-qwen3.8-27b-64k.md). The first Peachtree runs (30 September, before the quote action) are kept unedited next to them.
 
 ## The stack
 
