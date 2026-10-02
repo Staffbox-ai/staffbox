@@ -44,6 +44,24 @@ What this shows:
 - **The remaining miss** is the same in both models: "Are you hiring?" was answered "not in vault" instead of being routed to the `other` queue.
 - The test prompts are templated and the data is fictional. A real site's scorecard uses 30 to 50 of its own past requests.
 
+### Messy requests, held out, and a cloud comparison (2 October 2026)
+
+Real quote requests arrive with typos, forwarded threads, signatures, two items in one email, "two dozen", and "no setup". Two held-out sets test that: [`tests-heldout-ugly.jsonl`](examples/fieldstone-it/tests-heldout-ugly.jsonl) (20 requests) and [`tests-heldout-ugly2.jsonl`](examples/fieldstone-it/tests-heldout-ugly2.jsonl) (15 requests, committed before the quote-action changes it measured). Expected totals are computed by code from the vault's price list.
+
+| Fieldstone IT, graded by machine | Clean 40 | Messy 20 | Messy 15 |
+|---|---|---|---|
+| Gemini Pro (cloud), alone | 5/40 | 0/20 | not run |
+| Gemini Pro (cloud) + the same brain | 39/40 | 14/20 | not run |
+| `qwen3.8:27b` + quote action v1 | 40/40 | 16/20 | not run |
+| `qwen3:8b` + quote action v2.3 (current) | **40/40** | **19/20** | **15/15** |
+
+- **A cloud model with the same brain is as accurate on clean requests.** The brain is most of the product; the model is replaceable.
+- **On messy requests the quote action makes the difference.** The cloud model refused six requests it could have priced. The 8B model with the quote action priced them exactly, and still declined the ones it should: unstocked items, "same laptops as last time", and a vague bundle.
+- **The one miss is a safe one.** For "40 laptops, half with setup and half without", the volume discount depends on how the lines are split, so the worker asks the customer to confirm the split instead of pricing it.
+- **The record includes our own bug.** Quote action v2 let the small model drop setup fees by default and scored 11/20; [that run is kept](evals/results/2026-10-02-dell-3090-qwen3-8b-fieldstone-heldout-ugly-action-v2.md). v2.1 to v2.3 enforce the rules in code: setup is only dropped when the request says so; a model-picked item must be named or described in the request, otherwise the worker asks; and the same item on two lines must add up to a number in the request.
+
+The data is fictional and 35 requests is a small sample. A real site's held-out set is 10 of its own past quotes, graded blind by the site.
+
 Full scorecards with every miss and every raw answer: Fieldstone [8B](evals/results/2026-09-30-fieldstone-it-dell-3090-qwen3-8b.md) · [27B](evals/results/2026-09-30-fieldstone-it-dell-3090-qwen3.8-27b-64k.md); Peachtree [8B](evals/results/2026-09-30-peachtree-cabinet-works-dell-3090-qwen3-8b.md) · [27B](evals/results/2026-09-30-peachtree-cabinet-works-dell-3090-qwen3.8-27b-64k.md). The first Peachtree runs (30 September, before the quote action) are kept unedited next to them.
 
 ## The stack

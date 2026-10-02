@@ -161,6 +161,7 @@ def _tokens(s):
     out = set()
     for w in re.findall(r"[a-z0-9]+", s.lower().replace("usb-c", "usbc").replace("wi-fi", "wifi")):
         w = re.sub(r"(?<=[a-z]{3})s$", "", w) if len(w) > 4 else w  # "docks" -> "dock", but "ups" stays
+        w = re.sub(r"(\d|\din)s$", r"\1", w)  # "24x30s" -> "24x30", "16ins" -> "16in"
         w = re.sub(r"^(\d+)(?:inch)$", r"\1in", w)
         out |= set(SYN.get(w, w).split())
     return out - {"the", "a", "of", "and", "for", "with", "x", "port"} | ({"port"} & set())
@@ -206,5 +207,6 @@ def supported(pricing, text, sku):
     for d in descs.values():
         for w in d:
             df[w] = df.get(w, 0) + 1
-    unique = {w for w in descs.get(sku, set()) if df[w] == 1}
-    return bool(unique & _tokens(t))
+    mine, said = descs.get(sku, set()), _tokens(t)
+    unique = {w for w in mine if df[w] == 1}
+    return bool(unique & said) or (bool(mine) and mine <= said)  # a unique word, or the whole description

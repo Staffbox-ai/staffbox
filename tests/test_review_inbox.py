@@ -93,6 +93,13 @@ class QuoteDesk(unittest.TestCase):
         self.assertIn("ANSWER: $3,445.00 (2 lines)", out)
         self.assertEqual(calls, 2)
 
+    def test_double_count_escalates(self):
+        from unittest import mock
+        reply = "QUOTE: sku=LT-14; qty=40; setup=yes\nQUOTE: sku=LT-14; qty=40; setup=no"
+        with mock.patch.object(evals, "chat", return_value=(reply, 5)):
+            out, _, _ = evals.route_quote("h", "m", self.P, "Quote 40 of the 14 inch laptops, half with setup and half without.")
+        self.assertIn("NOT IN VAULT", out)
+
     def test_unclear_escalates(self):
         from unittest import mock
         with mock.patch.object(evals, "chat", return_value=("UNCLEAR", 3)):
@@ -113,7 +120,12 @@ class Guards(unittest.TestCase):
         self.assertTrue(s("price for 30 usb-c docks", "DOCK-C"))
         self.assertTrue(s("Pls quote 100 24in screens", "MON-24"))
         self.assertTrue(s("a firewall for the new office", "FW-SMB"))
-        self.assertTrue(s("need 3 UPS units asap, installed", "UPS-1500"))  # "ups" must not become "up"
+        self.assertTrue(s("need 3 UPS units asap, installed", "UPS-1500"))
+        self.assertTrue(s("Client wants 20 business laptop 16ins, set up", "LT-16"))
+        PT = self.a.load_pricing(FIELD.parent.parent / "peachtree-cabinet-works/vault")
+        self.assertTrue(self.a.supported(PT, "Customer wants 60 slab door 24x30s, cherry", "SL-2430"))
+        self.assertTrue(self.a.supported(PT, "Quote 30 x shaker door 24x30 (SD-2430)", "SD-2430"))
+        self.assertFalse(self.a.supported(PT, "Quote 30 doors in cherry", "SD-2430"))  # "ups" must not become "up"
 
     def test_setup_only_dropped_when_said(self):
         self.assertTrue(self.a.says_no_setup("We will image them ourselves, so no setup."))

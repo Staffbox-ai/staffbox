@@ -97,7 +97,8 @@ ROUTE = (
     "If the request asks for the price of one or more items, reply with ONLY one line per item:\n"
     "QUOTE: sku=<SKU from the list, or the words they used if no SKU fits>; qty=<number>; setup=<yes, or no if they say no setup / hardware only / they will set it up>{optfmt}\n"
     "Write numbers as digits (a dozen = 12). If the item or the quantity is unclear (\"same as last time\", \"some laptops\"), reply with ONLY: UNCLEAR\n"
-    "If the request is anything else (a policy question, routing an email, a non-price question), reply with ONLY: NONE"
+    "If the request is anything else (a policy question, a non-price question), reply with ONLY: NONE\n"
+    "If you are asked to route, classify or forward an email to a queue, reply with ONLY: NONE, even when the email asks for a price."
 )
 
 
@@ -117,6 +118,19 @@ def route_quote(host, model, pricing, question, num_ctx=None):
     if not lines:
         return "", n, 0
     works, total = [], 0.0
+    parsed = []
+    for ln in lines:
+        try:
+            parsed.append(actions.parse_quote_line(ln))
+        except Exception:
+            return "", n, 0
+    nums = {int(x) for x in re.findall(r"(?<![\w.])(\d{1,5})(?![\w.%])", text)}
+    by_sku = {}
+    for sku, qty, _ in parsed:
+        by_sku[sku] = by_sku.get(sku, 0) + qty
+    if len(lines) > 1 and any(q not in nums for k, q in by_sku.items() if sum(1 for p in parsed if p[0] == k) > 1):
+        return ("The same item appears on several lines and the quantities do not add up to a number in the request.\n"
+                "ANSWER: NOT IN VAULT: quantities unclear (possible double count). Ask the customer to confirm the split."), n, 0
     for ln in lines:
         try:
             sku, qty, o = actions.parse_quote_line(ln)
