@@ -55,6 +55,7 @@ class Grading(unittest.TestCase):
     def test_grade(self):
         self.assertTrue(evals.grade({"type": "quote", "expect": 2037.75}, "$2,037.75"))
         self.assertFalse(evals.grade({"type": "quote", "expect": 2037.75}, "$2,145.00"))
+        self.assertTrue(evals.grade({"type": "quote", "expect": 985.6}, "$985.60 (including 12% surcharge for stained finish)."))
         self.assertTrue(evals.grade({"type": "triage", "expect": "cert_request"}, "cert_request"))
         self.assertTrue(evals.grade({"type": "unknown", "expect": "NOT IN VAULT"}, "NOT IN VAULT, ask the plant manager"))
         self.assertTrue(evals.grade({"type": "lookup", "expect": ["20 business days"]}, "20 business days (painted)"))

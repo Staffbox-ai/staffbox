@@ -24,7 +24,22 @@ Python 3 standard library only, so there's nothing to install. `ask` and `eval` 
 
 ## Scorecard
 
-First runs on an RTX 3090 (qwen3.8-27b) and a 16 GB Mac mini M4 (qwen3:8b) are being added to [`evals/results/`](evals/results/) on 30 September 2026.
+Peachtree test set, 40 questions, graded by machine, 30 September 2026. Both models ran on a Dell Precision 5820 with an RTX 3090 through Ollama. `qwen3:8b` is the model a 16 GB Mac mini runs; accuracy depends on the model and speed depends on the box (the mini runs about 20 tokens a second, see [docs/measurements.md](docs/measurements.md)).
+
+| Task | 8B alone | 8B + brain | 8B + brain + calc | 27B alone | 27B + brain | 27B + brain + calc |
+|---|---|---|---|---|---|---|
+| Quote a line (16) | 0% | 56% | 62% | 0% | 93% | 81% |
+| Policy question (10) | 10% | 100% | 100% | 20% | 100% | 100% |
+| Route an email (8) | 0% | 87% | 100% | 0% | 100% | 100% |
+| Say "not in vault" (6) | 0% | 100% | 100% | 0% | 100% | 100% |
+| **All 40** | **2%** | **80%** | **85%** | **5%** | **97%** | **92%** |
+
+What this shows:
+- **The brain is most of the gain.** On their own, both models refused most questions and made some up: a "1-year limited warranty", and a $2,408.70 price for walnut, which Peachtree does not sell. With the brain, both answered every policy question and declined all six questions the brain does not cover.
+- **Quotes on the 8B model are the weak spot.** It picks the right numbers from the notes but gets the arithmetic wrong, and sometimes copies the worked example from the SOP. The calculator added one quote. The next rungs of the fix ladder are a quote tool that does the whole calculation, or the bigger model; the 27B already gets 15 of 16 with the brain alone.
+- **The calculator did not help the 27B.** It lost two quotes when the model fed the tool its own rounding. We report that as measured.
+
+Full scorecards with every miss: [8B](evals/results/2026-09-30-dell-3090-qwen3-8b.md) · [27B](evals/results/2026-09-30-dell-3090-qwen3.8-27b.md). Two harness bugs were found and fixed while producing them; both are noted in the files.
 
 Every row was produced by `staffbox eval` and graded automatically. Every answer, raw, is in [`evals/results/`](evals/results/).
 
