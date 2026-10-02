@@ -119,6 +119,10 @@ ok "Demo brains: $(ls $SB/examples | tr '\n' ' ')"
 step "Desktop, dashboard and welcome page"
 hermes -p "$PROFILE" config set dashboard.show_token_analytics true >/dev/null 2>&1 || true
 hermes -p "$PROFILE" tools disable image_gen >/dev/null 2>&1 || true   # cloud image service; stays off unless the customer adds a key
+# Safe default: no shell, code execution, browser, computer control, web, outside connections, delegation or scheduled jobs.
+# Customer-facing replies go through `staffbox inbox` (drafts only, no sending code). A site turns tools on in writing:
+#   hermes -p <profile> tools enable terminal   (and so on)
+hermes -p "$PROFILE" tools disable terminal code_execution browser computer_use web connections delegation cronjob tts >/dev/null 2>&1 || warn "Could not restrict the worker's tools; run: hermes -p $PROFILE tools list"
 cp "$HERE/profile/brand/wallpaper.png" $SB/wallpaper.png
 sed "s#__WALLPAPER__#$SB/wallpaper.png#" "$HERE/profile/brand/set-wallpaper.js" > $SB/set-wallpaper.js
 cp "$HERE/profile/brand/welcome.html" $SB/welcome.html

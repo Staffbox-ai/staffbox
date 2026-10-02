@@ -4,7 +4,7 @@
 
 **Your first agentic worker. One box, on your network, with a brain you own and a score you can check.**
 
-Staffbox is an open stack for running an agentic AI worker on a Mac mini inside a small company's own network. It runs an open-source agent on local open-weight models. Its memory is a **brain**: a plain Markdown vault the company owns and can open in Obsidian. The company's existing IT provider installs and manages the box. The worker goes live on a workflow only after a **scorecard** shows it answering that company's own past requests correctly.
+Staffbox is an open stack for running an agentic AI worker on a Mac mini inside a small company's own network. It runs an open-source agent on local open-weight models. Its memory is a **brain**: a plain Markdown vault the company owns and can open in Obsidian. The company's existing IT provider installs and manages the box. The worker goes live on a workflow only after a **scorecard** on that company's own past requests meets a pass mark agreed in advance.
 
 This repository is the stack. The managed service, the hardware program and the partner channel are what Staffbox, Inc. sells around it.
 
@@ -48,7 +48,7 @@ What this shows:
 
 ### Messy requests, held out, and a cloud comparison (2 October 2026)
 
-Real quote requests arrive with typos, forwarded threads, signatures, two items in one email, "two dozen", and "no setup". Two held-out sets test that: [`tests-heldout-ugly.jsonl`](examples/fieldstone-it/tests-heldout-ugly.jsonl) (20 requests) and [`tests-heldout-ugly2.jsonl`](examples/fieldstone-it/tests-heldout-ugly2.jsonl) (15 requests, committed before the quote-action changes it measured). Expected totals are computed by code from the vault's price list.
+Real quote requests arrive with typos, forwarded threads, signatures, two items in one email, "two dozen", and "no setup". Two sets test that. [`tests-heldout-ugly.jsonl`](examples/fieldstone-it/tests-heldout-ugly.jsonl) (20 requests) was held out from the first quote action, then **used while we fixed v2**, so its later scores are not a clean held-out result. [`tests-heldout-ugly2.jsonl`](examples/fieldstone-it/tests-heldout-ugly2.jsonl) (15 requests) was committed before the changes it measured and is the clean one. Expected totals are computed by code from the vault's price list.
 
 | Fieldstone IT, graded by machine | Clean 40 | Messy 20 | Messy 15 |
 |---|---|---|---|
