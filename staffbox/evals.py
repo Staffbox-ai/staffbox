@@ -4,9 +4,11 @@ Three rungs of the fix ladder, measured separately so the before/after is visibl
   none        the model alone, told only the company name
   brain       the model plus the notes `brain.context` retrieves from the vault
   brain+calc  the same, plus a calculator tool the model calls with CALC: lines
+  brain+quote the brain, plus the quote action (staffbox.actions): a short routing call extracts SKU, quantity
+              and options, code prices the line from the vault's own pricing notes; anything else goes to `brain`
 """
 import ast, concurrent.futures as cf, json, operator, re, time, urllib.request
-from . import brain
+from . import actions, brain
 
 SYSTEM_NONE = "You are the office worker for {company}. Answer the question. End with one line: ANSWER: <answer>."
 SYSTEM_BRAIN = (
@@ -50,8 +52,14 @@ def ask(host, model, vault, question, mode="brain", company="the company", num_c
     else:
         ctx, notes = brain.context(vault, question)
         system = SYSTEM_BRAIN.format(company=company, context=ctx) + (CALC_RULE if mode == "brain+calc" else "")
+    pricing = actions.load_pricing(vault) if mode == "brain+quote" else None
     msgs = [{"role": "system", "content": system}, {"role": "user", "content": question}]
     tokens, calls = 0, 0
+    if mode == "brain+quote" and pricing["skus"]:
+        out, n, calls = route_quote(host, model, pricing, question, num_ctx)
+        tokens += n
+        if out:
+            return out, notes, tokens, calls
     for rnd in range(4):
         out, n = chat(host, model, msgs, num_ctx)
         tokens += n
@@ -69,6 +77,39 @@ def ask(host, model, vault, question, mode="brain", company="the company", num_c
             calls += 1
         msgs += [{"role": "assistant", "content": out}, {"role": "user", "content": "Results:\n" + "\n".join(results) + "\nUse these exact results (rounded to the cent where the procedure says so). Recheck your working, then give the final ANSWER line."}]
     return out, notes, tokens, calls
+
+
+ROUTE = (
+    "You turn an office request into one pricing call, or say NONE.\n"
+    "Price list SKUs: {skus}\n{opts}"
+    "If the request asks for the price of a quantity of one item, reply with ONLY one line:\n"
+    "QUOTE: sku=<SKU from the list, or the closest description if no SKU fits>; qty=<number>{optfmt}\n"
+    "Use the SKU whose description matches the request. If the item is not on the list, still write the item as sku=<what they asked for>.\n"
+    "If the request is anything else (a policy question, routing an email, a non-price question), reply with ONLY: NONE"
+)
+
+
+def route_quote(host, model, pricing, question, num_ctx=None):
+    """Action routing: a short dedicated call decides whether this is a quote, and extracts SKU, qty and options.
+    Code prices the line. Returns (answer text or "", tokens, calls)."""
+    skus = "; ".join(f"{k} = {v['desc']}" for k, v in pricing["skus"].items())
+    opts = "".join(f"Options for {a}: {', '.join(t)}\n" for a, t in pricing["surcharges"].items())
+    optfmt = "".join(f"; {a}=<value if named>" for a in pricing["surcharges"])
+    out, n = chat(host, model, [{"role": "system", "content": ROUTE.format(skus=skus, opts=opts, optfmt=optfmt)},
+                                {"role": "user", "content": question}], num_ctx)
+    m = re.search(r"QUOTE:\s*(.+)", out)
+    if not m:
+        return "", n, 0
+    try:
+        sku, qty, o = actions.parse_quote_line(m.group(1))
+        o = {k: v for k, v in o.items() if v and not v.startswith("<")}
+        sku, qty, o = actions.resolve(pricing, question, sku, qty, o)
+        total, work = actions.quote(pricing, sku, qty, o)
+    except Exception as e:
+        return "", n, 1
+    if total is None:
+        return f"{work}.\nANSWER: NOT IN VAULT: {work}. Ask the person who owns pricing (see people).", n, 1
+    return f"Quote action: {work}.\nANSWER: ${total:,.2f}", n, 1
 
 
 def final_answer(text):

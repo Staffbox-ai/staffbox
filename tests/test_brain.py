@@ -9,6 +9,9 @@ class Brain(unittest.TestCase):
     def test_demo_brain_is_healthy(self):
         self.assertEqual(brain.check(DEMO), [])
 
+    def test_fieldstone_brain_is_healthy(self):
+        self.assertEqual(brain.check(DEMO.parent.parent / "fieldstone-it/vault"), [])
+
     def test_template_brain_is_healthy(self):
         self.assertEqual(brain.check(DEMO.parent.parent.parent / "profile/vault"), [])
 

@@ -22,3 +22,7 @@ jobs:
         run: bin/staffbox check profile/vault
       - name: test set is reproducible
         run: python examples/peachtree-cabinet-works/make_tests.py | diff - examples/peachtree-cabinet-works/tests.jsonl
+      - name: Fieldstone tests match their generator
+        run: python examples/fieldstone-it/make_tests.py | diff - examples/fieldstone-it/tests.jsonl
+      - name: Fieldstone brain is healthy
+        run: bin/staffbox check examples/fieldstone-it/vault

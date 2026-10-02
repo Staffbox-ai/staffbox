@@ -9,4 +9,6 @@ bin/staffbox eval examples/peachtree-cabinet-works/vault examples/peachtree-cabi
   --host http://localhost:11434 --model qwen3:8b --out evals/results/$(date +%F)-<machine>-<model>
 ```
 
+Modes: `none` (the model alone), `brain` (plus the notes the brain retrieves), `brain+calc` (plus a calculator), `brain+quote` (plus the quote action, which prices lines from the vault's own tables).
+
 To add a result, open a PR with both files. Never edit an old result: add a new one.

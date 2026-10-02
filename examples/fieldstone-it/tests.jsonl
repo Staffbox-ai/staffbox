@@ -1,0 +1,40 @@
+{"id": "quote-01", "type": "quote", "prompt": "Quote 40 x business laptop 14in (LT-14) with setup. What is the line total?", "expect": 46542.8}
+{"id": "quote-02", "type": "quote", "prompt": "Client wants 20 business laptop 16ins, set up and ready. How much for the line?", "expect": 28760.8}
+{"id": "quote-03", "type": "quote", "prompt": "Price 12 of DT-MINI including setup please.", "expect": 11496.48}
+{"id": "quote-04", "type": "quote", "prompt": "Price 24 of DOCK-C including setup please.", "expect": 5285.76}
+{"id": "quote-05", "type": "quote", "prompt": "Price 40 of AP-6E including setup please.", "expect": 16870.8}
+{"id": "quote-06", "type": "quote", "prompt": "Quote 24 x monitor 24in (MON-24) with setup. What is the line total?", "expect": 5405.76}
+{"id": "quote-07", "type": "quote", "prompt": "Price 30 of LT-14 including setup please.", "expect": 34907.1}
+{"id": "quote-08", "type": "quote", "prompt": "Price 30 of SW-24P including setup please.", "expect": 33795.0}
+{"id": "quote-09", "type": "quote", "prompt": "Quote 30 x battery backup 1500VA (UPS-1500) with setup. What is the line total?", "expect": 9779.1}
+{"id": "quote-10", "type": "quote", "prompt": "Price 30 of FW-SMB including setup please.", "expect": 42375.0}
+{"id": "quote-11", "type": "quote", "prompt": "Price 2 of DT-MINI including setup please.", "expect": 1988.0}
+{"id": "quote-12", "type": "quote", "prompt": "Client wants 25 business laptop 16ins, set up and ready. How much for the line?", "expect": 34901.75}
+{"id": "quote-13", "type": "quote", "prompt": "Client wants 3 small desktops, set up and ready. How much for the line?", "expect": 2982.0}
+{"id": "quote-14", "type": "quote", "prompt": "Quote 24 x Wi-Fi 6E access point (AP-6E) with setup. What is the line total?", "expect": 10402.56}
+{"id": "quote-15", "type": "quote", "prompt": "Client wants 20 small-business firewalls, set up and ready. How much for the line?", "expect": 29000.0}
+{"id": "quote-16", "type": "quote", "prompt": "Client wants 8 business laptop 16ins, set up and ready. How much for the line?", "expect": 11952.0}
+{"id": "lookup-01", "type": "lookup", "prompt": "A whole office is down. How fast do we have to respond?", "expect": ["15 minutes"]}
+{"id": "lookup-02", "type": "lookup", "prompt": "What do we charge per hour for after-hours work?", "expect": ["$225"]}
+{"id": "lookup-03", "type": "lookup", "prompt": "What's our business-hours project rate?", "expect": ["$165"]}
+{"id": "lookup-04", "type": "lookup", "prompt": "How long do we keep backups?", "expect": ["30 days"]}
+{"id": "lookup-05", "type": "lookup", "prompt": "When is the server maintenance window?", "expect": ["sunday", "2 am"]}
+{"id": "lookup-06", "type": "lookup", "prompt": "A user lost their phone and is locked out of MFA. What is the first step?", "expect": ["call"]}
+{"id": "lookup-07", "type": "lookup", "prompt": "How quickly must we disable an account after a leaver request?", "expect": ["1 hour"]}
+{"id": "lookup-08", "type": "lookup", "prompt": "Who approves a quote over $10,000?", "expect": ["service director"]}
+{"id": "lookup-09", "type": "lookup", "prompt": "How much notice do we need for a new starter?", "expect": ["3 business days"]}
+{"id": "lookup-10", "type": "lookup", "prompt": "Brightwater Dental wants a firewall rule changed today. What do we need first?", "expect": ["change ticket"]}
+{"id": "triage-01", "type": "triage", "prompt": "Route this email to one queue.\n\n\"The printer on the second floor keeps jamming and now shows an error.\"", "expect": "service_desk"}
+{"id": "triage-02", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Can you price 8 new laptops and docks for our new hires?\"", "expect": "quote"}
+{"id": "triage-03", "type": "triage", "prompt": "Route this email to one queue.\n\n\"I clicked a link in an email that said my mailbox was full and entered my password.\"", "expect": "security"}
+{"id": "triage-04", "type": "triage", "prompt": "Route this email to one queue.\n\n\"We have a new paralegal starting Monday, Ana Ruiz.\"", "expect": "onboarding"}
+{"id": "triage-05", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Our September invoice looks like it charged us twice.\"", "expect": "billing"}
+{"id": "triage-06", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Outlook won't open on my laptop since this morning.\"", "expect": "service_desk"}
+{"id": "triage-07", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Jim left the company today, please shut off his access.\"", "expect": "onboarding"}
+{"id": "triage-08", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Do you sponsor the chamber of commerce golf day?\"", "expect": "other"}
+{"id": "unknown-01", "type": "unknown", "prompt": "What is the price of a 34in ultrawide monitor?", "expect": "NOT IN VAULT"}
+{"id": "unknown-02", "type": "unknown", "prompt": "Do we support Linux desktops for clients?", "expect": "NOT IN VAULT"}
+{"id": "unknown-03", "type": "unknown", "prompt": "What is the warranty on the LT-14 laptop?", "expect": "NOT IN VAULT"}
+{"id": "unknown-04", "type": "unknown", "prompt": "Does Morrow & Pike have a backup internet line?", "expect": "NOT IN VAULT"}
+{"id": "unknown-05", "type": "unknown", "prompt": "Price 20 iPads with setup.", "expect": "NOT IN VAULT"}
+{"id": "unknown-06", "type": "unknown", "prompt": "What response time do we promise clients outside Georgia?", "expect": "NOT IN VAULT"}
