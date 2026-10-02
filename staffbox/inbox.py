@@ -26,17 +26,18 @@ def read_request(path):
     return "", path.stem.replace("-", " "), raw.decode("utf-8", "replace")
 
 
-def sources(vault, notes):
-    """'price-list.md (updated 2026-09-30)' for every note the answer read, pricing notes first."""
+def sources(vault, notes, pricing_only=False):
+    """'hardware-price-list.md (updated 2026-09-30)' for the notes behind the answer: pricing notes for a priced
+    quote, otherwise the notes the answer read."""
     allnotes, _ = brain.load(vault)
     root = pathlib.Path(vault)
     rows = []
     for n in allnotes.values():
         rel = str(n.path.relative_to(root))
         is_pricing = "pricing" in [t.lower() for t in brain._aslist(n.meta.get("tags"))]
-        if rel in notes or is_pricing:
-            rows.append((not is_pricing, f"{rel} (updated {n.meta.get('updated', '?')})"))
-    return "; ".join(s for _, s in sorted(rows)) or "none"
+        if (is_pricing if pricing_only else rel in notes):
+            rows.append(f"{rel} (updated {n.meta.get('updated', '?')})")
+    return "; ".join(sorted(rows)) or "none"
 
 
 def draft_reply(vault, sender, subject, text, answer, notes, company):
@@ -45,9 +46,21 @@ def draft_reply(vault, sender, subject, text, answer, notes, company):
     m["Subject"] = subject if subject.lower().startswith("re:") else f"Re: {subject}"
     m["X-Staffbox-Draft"] = "yes"
     final = evals.final_answer(answer)
-    work = answer.split("ANSWER:")[0].strip()
-    body = (f"Hello,\n\n{final}\n\nWorking: {work}" if work and work != final else f"Hello,\n\n{final}")
-    m.set_content(body + FOOTER.format(company=company, sources=sources(vault, notes)))
+    name = (sender.split("<")[0].strip().split() or [""])[0]
+    hello = f"Hi {name}," if name else "Hello,"
+    if "not in vault" in final.lower():
+        reason = final.split(":", 1)[-1].strip()
+        body = (f"[NOTE FOR THE REVIEWER, delete before sending: Staffbox did not price this. {reason}]\n\n"
+                f"{hello}\n\nThanks for the request. We'll confirm the details and come back to you with a price shortly.")
+        cite = sources(vault, notes, pricing_only=True)
+    elif "Quote action" in answer:
+        lines = [l.strip("- ").rstrip(".") for l in answer.split("ANSWER:")[0].replace("Quote action:", "").splitlines() if l.strip()]
+        body = f"{hello}\n\nHere is the quote:\n\n" + "\n".join(f"- {l}" for l in lines) + f"\n\nTotal: {final.split(' (')[0]}"
+        cite = sources(vault, notes, pricing_only=True)
+    else:
+        body = f"{hello}\n\n{final}"
+        cite = sources(vault, notes)
+    m.set_content(body + FOOTER.format(company=company, sources=cite))
     return m
 
 

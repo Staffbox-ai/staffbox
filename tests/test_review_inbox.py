@@ -55,7 +55,8 @@ class Inbox(unittest.TestCase):
             draft = made[0].read_text()
             self.assertIn("To: Dana <dana@example.com>", draft)
             self.assertIn("Subject: Re: laptops", draft)
-            self.assertIn("$2,488.00", draft)
+            self.assertIn("Total: $2,488.00", draft)
+            self.assertIn("Hi Dana,", draft)
             self.assertIn("hardware-price-list.md (updated 2026-09-30)", draft)
             self.assertNotIn("99", seen[0])  # quoted history stripped
             self.assertTrue((req / "done" / "r1.eml").exists())
@@ -112,6 +113,7 @@ class Guards(unittest.TestCase):
         self.assertTrue(s("price for 30 usb-c docks", "DOCK-C"))
         self.assertTrue(s("Pls quote 100 24in screens", "MON-24"))
         self.assertTrue(s("a firewall for the new office", "FW-SMB"))
+        self.assertTrue(s("need 3 UPS units asap, installed", "UPS-1500"))  # "ups" must not become "up"
 
     def test_setup_only_dropped_when_said(self):
         self.assertTrue(self.a.says_no_setup("We will image them ourselves, so no setup."))

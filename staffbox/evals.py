@@ -126,8 +126,9 @@ def route_quote(host, model, pricing, question, num_ctx=None):
             elif sku not in pricing["skus"]:
                 sku = actions.match_description(pricing, sku) or sku
             if sku in pricing["skus"] and not actions.supported(pricing, text, sku):
-                return (f"The request does not say which {pricing['skus'][sku]['desc'].split()[-1]} model.\n"
-                        "ANSWER: NOT IN VAULT: item unclear. Ask the customer which model."), n, len(lines)
+                return ("The request does not name one stocked item exactly; it may be a special order.\n"
+                        "ANSWER: NOT IN VAULT: the request does not name one stocked item exactly. Ask the customer which model, "
+                        "or the person who owns pricing if it is a special order."), n, len(lines)
             if o.get("setup", "yes").lower() in ("no", "none", "false", "without", "0") and not actions.says_no_setup(text):
                 o["setup"] = "yes"  # setup is only dropped when the customer says so
             t, work = actions.quote(pricing, sku, qty, o)

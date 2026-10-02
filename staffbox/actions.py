@@ -160,7 +160,7 @@ def words_to_digits(text):
 def _tokens(s):
     out = set()
     for w in re.findall(r"[a-z0-9]+", s.lower().replace("usb-c", "usbc").replace("wi-fi", "wifi")):
-        w = re.sub(r"(?<=[a-z]{2})s$", "", w)
+        w = re.sub(r"(?<=[a-z]{3})s$", "", w) if len(w) > 4 else w  # "docks" -> "dock", but "ups" stays
         w = re.sub(r"^(\d+)(?:inch)$", r"\1in", w)
         out |= set(SYN.get(w, w).split())
     return out - {"the", "a", "of", "and", "for", "with", "x", "port"} | ({"port"} & set())
