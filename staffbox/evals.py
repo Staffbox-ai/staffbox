@@ -37,7 +37,19 @@ def calc(expr):
     return round(ev(ast.parse(expr.strip(), mode="eval").body), 4)
 
 
+def chat_openai(host, model, messages, timeout=600):
+    """Any OpenAI-compatible endpoint (a cloud comparison, never the default). Key from STAFFBOX_CLOUD_KEY."""
+    import os
+    body = {"model": model, "messages": messages, "temperature": 0}
+    req = urllib.request.Request(f"{host.rstrip('/')}/chat/completions", json.dumps(body).encode(),
+                                 {"Content-Type": "application/json", "Authorization": f"Bearer {os.environ['STAFFBOX_CLOUD_KEY']}"})
+    r = json.load(urllib.request.urlopen(req, timeout=timeout))
+    return r["choices"][0]["message"]["content"] or "", r.get("usage", {}).get("completion_tokens", 0)
+
+
 def chat(host, model, messages, num_ctx=None, timeout=600):
+    if host.startswith("https://") and "/v1" in host:
+        return chat_openai(host, model, messages, timeout)
     body = {"model": model, "messages": messages, "stream": False, "think": False, "options": {"temperature": 0}}
     if num_ctx:
         body["options"]["num_ctx"] = num_ctx
@@ -80,36 +92,69 @@ def ask(host, model, vault, question, mode="brain", company="the company", num_c
 
 
 ROUTE = (
-    "You turn an office request into one pricing call, or say NONE.\n"
+    "You turn an office request into pricing calls, or say NONE.\n"
     "Price list SKUs: {skus}\n{opts}"
-    "If the request asks for the price of a quantity of one item, reply with ONLY one line:\n"
-    "QUOTE: sku=<SKU from the list, or the closest description if no SKU fits>; qty=<number>{optfmt}\n"
-    "Use the SKU whose description matches the request. If the item is not on the list, still write the item as sku=<what they asked for>.\n"
-    "If the request is anything else (a policy question, routing an email, a non-price question), reply with ONLY: NONE"
+    "If the request asks for the price of one or more items, reply with ONLY one line per item:\n"
+    "QUOTE: sku=<SKU from the list, or the words they used if no SKU fits>; qty=<number>; setup=<yes, or no if they say no setup / hardware only / they will set it up>{optfmt}\n"
+    "Write numbers as digits (a dozen = 12). If the item or the quantity is unclear (\"same as last time\", \"some laptops\"), reply with ONLY: UNCLEAR\n"
+    "If the request is anything else (a policy question, a non-price question), reply with ONLY: NONE\n"
+    "If you are asked to route, classify or forward an email to a queue, reply with ONLY: NONE, even when the email asks for a price."
 )
 
 
 def route_quote(host, model, pricing, question, num_ctx=None):
-    """Action routing: a short dedicated call decides whether this is a quote, and extracts SKU, qty and options.
-    Code prices the line. Returns (answer text or "", tokens, calls)."""
+    """Action routing: a short dedicated call decides whether this is a quote and extracts one line per item
+    (SKU, quantity, setup, options). Code prices every line and adds them up. Returns (answer text or "", tokens, calls)."""
     skus = "; ".join(f"{k} = {v['desc']}" for k, v in pricing["skus"].items())
     opts = "".join(f"Options for {a}: {', '.join(t)}\n" for a, t in pricing["surcharges"].items())
     optfmt = "".join(f"; {a}=<value if named>" for a in pricing["surcharges"])
+    text = actions.words_to_digits(question)
     out, n = chat(host, model, [{"role": "system", "content": ROUTE.format(skus=skus, opts=opts, optfmt=optfmt)},
-                                {"role": "user", "content": question}], num_ctx)
-    m = re.search(r"QUOTE:\s*(.+)", out)
-    if not m:
+                                {"role": "user", "content": text}], num_ctx)
+    if re.search(r"\bUNCLEAR\b", out) and "QUOTE:" not in out:
+        return ("The request does not say exactly which item or how many.\nANSWER: NOT IN VAULT: item or quantity unclear. "
+                "Ask the customer which model and how many."), n, 0
+    lines = re.findall(r"QUOTE:\s*(.+)", out)
+    if not lines:
         return "", n, 0
-    try:
-        sku, qty, o = actions.parse_quote_line(m.group(1))
-        o = {k: v for k, v in o.items() if v and not v.startswith("<")}
-        sku, qty, o = actions.resolve(pricing, question, sku, qty, o)
-        total, work = actions.quote(pricing, sku, qty, o)
-    except Exception as e:
-        return "", n, 1
-    if total is None:
-        return f"{work}.\nANSWER: NOT IN VAULT: {work}. Ask the person who owns pricing (see people).", n, 1
-    return f"Quote action: {work}.\nANSWER: ${total:,.2f}", n, 1
+    works, total = [], 0.0
+    parsed = []
+    for ln in lines:
+        try:
+            parsed.append(actions.parse_quote_line(ln))
+        except Exception:
+            return "", n, 0
+    nums = {int(x) for x in re.findall(r"(?<![\w.])(\d{1,5})(?![\w.%])", text)}
+    by_sku = {}
+    for sku, qty, _ in parsed:
+        by_sku[sku] = by_sku.get(sku, 0) + qty
+    if len(lines) > 1 and any(q not in nums for k, q in by_sku.items() if sum(1 for p in parsed if p[0] == k) > 1):
+        return ("The same item appears on several lines and the quantities do not add up to a number in the request.\n"
+                "ANSWER: NOT IN VAULT: quantities unclear (possible double count). Ask the customer to confirm the split."), n, 0
+    for ln in lines:
+        try:
+            sku, qty, o = actions.parse_quote_line(ln)
+            o = {k: v for k, v in o.items() if v and not v.startswith("<")}
+            if len(lines) == 1:  # one item: the request text can correct the extraction
+                sku, qty, o = actions.resolve(pricing, text, sku, qty, o)
+            elif sku not in pricing["skus"]:
+                sku = actions.match_description(pricing, sku) or sku
+            if sku in pricing["skus"] and not actions.supported(pricing, text, sku):
+                return ("The request does not name one stocked item exactly; it may be a special order.\n"
+                        "ANSWER: NOT IN VAULT: the request does not name one stocked item exactly. Ask the customer which model, "
+                        "or the person who owns pricing if it is a special order."), n, len(lines)
+            if o.get("setup", "yes").lower() in ("no", "none", "false", "without", "0") and not actions.says_no_setup(text):
+                o["setup"] = "yes"  # setup is only dropped when the customer says so
+            t, work = actions.quote(pricing, sku, qty, o)
+        except Exception:
+            return "", n, len(works) + 1
+        if t is None:
+            return f"{work}.\nANSWER: NOT IN VAULT: {work}. Ask the person who owns pricing (see people).", n, len(lines)
+        works.append(work); total += t
+    total = round(total, 2)
+    if len(works) == 1:
+        return f"Quote action: {works[0]}.\nANSWER: ${total:,.2f}", n, 1
+    return "Quote action:\n" + "\n".join(f"- {w}" for w in works) + f"\nANSWER: ${total:,.2f} ({len(works)} lines)", n, len(works)
 
 
 def final_answer(text):
@@ -126,9 +171,10 @@ def money(s):
 def grade(test, answer):
     a = answer.lower()
     kind = test["type"]
-    if kind == "quote":
-        got = money(answer)
-        return got is not None and abs(got - test["expect"]) <= 0.011
+    if kind == "quote":  # the stated total comes first ("$5,094.00 (a + b)") or last ("unit $71.50, total $2,037.75")
+        amts = [float(x.replace(",", "").rstrip(".")) for x in re.findall(r"\$\s*([0-9][0-9,]*\.?[0-9]*)", answer)]
+        cands = [amts[0], amts[-1]] if amts else ([money(answer)] if money(answer) is not None else [])
+        return any(abs(c - test["expect"]) <= 0.011 for c in cands)
     if kind == "triage":
         return re.sub(r"[^a-z_]", "", a.replace(" ", "_")) .endswith(test["expect"]) or a.strip(" .`'\"") == test["expect"]
     if kind == "unknown":
@@ -171,7 +217,15 @@ def scorecard(rows, meta):
             cells.append(f"{p}/{len(rs)} ({100*p//max(len(rs),1)}%)")
         lines.append(f"| {t} | " + " | ".join(cells) + " |")
     secs = {m: sum(r["seconds"] for r in rows if r["mode"] == m) / max(1, sum(1 for r in rows if r["mode"] == m)) for m in modes}
-    lines += ["", "Average seconds per answer: " + " · ".join(f"{m} {s:.1f}s" for m, s in secs.items()), "",
+    lines += ["", "Average seconds per answer: " + " · ".join(f"{m} {s:.1f}s" for m, s in secs.items()),
+              "90th-percentile seconds: " + " · ".join(f"{m} {p90([r['seconds'] for r in rows if r['mode'] == m]):.1f}s" for m in modes)]
+    if any(r["type"] == "quote" for r in rows):
+        lines += ["", "Quotes, the pilot pass bar (a refusal is a miss; \"right\" means the exact line total, no edits):", "",
+                  "| Mode | Priced | Right of priced | Right of all |", "|---|---|---|---|"]
+        for m in modes:
+            q = quote_quality([r for r in rows if r["mode"] == m])
+            lines.append(f"| {m} | {q['priced']}/{q['n']} ({q['priced_pct']}%) | {q['right']}/{q['priced']} ({q['right_of_priced_pct']}%) | {q['right']}/{q['n']} |")
+    lines += ["",
               "Modes: `none` = the model alone. `brain` = plus the notes retrieved from the vault. `brain+calc` = plus a calculator tool.", "",
               "Read `none` as a general-purpose assistant with no company knowledge. It cannot pass routing (it does not know the queue names) or \"not in vault\" (it was never told the rule). What matters there is what it does instead: refuse, or invent an answer.", "",
               "## Misses", "", "| Mode | Test | Expected | Got |", "|---|---|---|---|"]
@@ -179,3 +233,23 @@ def scorecard(rows, meta):
         if not r["ok"]:
             lines.append(f"| {r['mode']} | {r['id']} | {r['expect']} | {r['answer'][:90].replace('|', '/')} |")
     return "\n".join(lines) + "\n"
+
+
+def p90(xs):
+    xs = sorted(xs)
+    return xs[min(len(xs) - 1, int(0.9 * len(xs)))] if xs else 0.0
+
+
+def priced(answer):
+    """True when the answer commits to a dollar figure (not a refusal or an escalation)."""
+    a = answer.lower()
+    return money(answer) is not None and "not in vault" not in a and "not in the vault" not in a and "$" in answer
+
+
+def quote_quality(rows):
+    """The pilot pass bar for quote rows: share priced, share right of those priced, right of all."""
+    q = [r for r in rows if r["type"] == "quote"]
+    pr = [r for r in q if priced(r["answer"])]
+    right = sum(r["ok"] for r in pr)
+    pct = lambda a, b: 100 * a // b if b else 0
+    return dict(n=len(q), priced=len(pr), right=right, priced_pct=pct(len(pr), len(q)), right_of_priced_pct=pct(right, len(pr)))

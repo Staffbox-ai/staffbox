@@ -1,0 +1,15 @@
+{"id": "ugly2-01", "type": "quote", "tag": "dozen", "prompt": "Could you price a dozen small desktops with setup?", "expect": 11496.48}
+{"id": "ugly2-02", "type": "quote", "tag": "words-items", "prompt": "We'd like three of the 24-port PoE switches and eight wifi 6E access points, installed.", "expect": 7192.0}
+{"id": "ugly2-03", "type": "quote", "tag": "no-setup-2", "prompt": "Just the hardware please, no setup: 30 MON-27.", "expect": 8063.1}
+{"id": "ugly2-04", "type": "quote", "tag": "battery", "prompt": "need pricing on 6 battery backups (the 1500VA ones)", "expect": 2094.0}
+{"id": "ugly2-05", "type": "quote", "tag": "desk-kit", "prompt": "For each of 4 desks: one 27in monitor and one USB-C dock. Total?", "expect": 2132.0}
+{"id": "ugly2-06", "type": "quote", "tag": "ticket-noise", "prompt": "Ticket #48213 - Hi, please quote 11 LT-14 with setup. Our PO will reference 2026-118.", "expect": 13178.44}
+{"id": "ugly2-07", "type": "unknown", "tag": "not-stocked-2", "prompt": "Do you have a 32in 4K monitor? Need 5.", "expect": "NOT IN VAULT"}
+{"id": "ugly2-08", "type": "unknown", "tag": "vague", "prompt": "Can we get some new laptops for the front desk?", "expect": "NOT IN VAULT"}
+{"id": "ugly2-09", "type": "quote", "tag": "hardware-only-words", "prompt": "Price 50 docks, hardware only, we'll plug them in ourselves.", "expect": 10183.5}
+{"id": "ugly2-10", "type": "quote", "tag": "one-each", "prompt": "One firewall and one switch (24 port PoE) for the clinic, set up.", "expect": 2700.0}
+{"id": "ugly2-11", "type": "quote", "tag": "dash-qty", "prompt": "LT-16 - qty 26 - with setup", "expect": 36297.82}
+{"id": "ugly2-12", "type": "quote", "tag": "spelled", "prompt": "twenty-five 24in monitors with setup please", "expect": 5466.75}
+{"id": "ugly2-13", "type": "quote", "tag": "model-number-noise", "prompt": "Quote 7 AP-6E for building 3, floor 2.", "expect": 3143.0}
+{"id": "ugly2-14", "type": "quote", "tag": "mixed-setup", "prompt": "10 LT-14 with setup and 10 DOCK-C without setup.", "expect": 14082.8}
+{"id": "ugly2-15", "type": "quote", "tag": "price-check-qty", "prompt": "What would 2 FW-SMB cost installed? Last quote said $2,600.", "expect": 3000.0}
