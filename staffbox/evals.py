@@ -37,7 +37,19 @@ def calc(expr):
     return round(ev(ast.parse(expr.strip(), mode="eval").body), 4)
 
 
+def chat_openai(host, model, messages, timeout=600):
+    """Any OpenAI-compatible endpoint (a cloud comparison, never the default). Key from STAFFBOX_CLOUD_KEY."""
+    import os
+    body = {"model": model, "messages": messages, "temperature": 0}
+    req = urllib.request.Request(f"{host.rstrip('/')}/chat/completions", json.dumps(body).encode(),
+                                 {"Content-Type": "application/json", "Authorization": f"Bearer {os.environ['STAFFBOX_CLOUD_KEY']}"})
+    r = json.load(urllib.request.urlopen(req, timeout=timeout))
+    return r["choices"][0]["message"]["content"] or "", r.get("usage", {}).get("completion_tokens", 0)
+
+
 def chat(host, model, messages, num_ctx=None, timeout=600):
+    if host.startswith("https://") and "/v1" in host:
+        return chat_openai(host, model, messages, timeout)
     body = {"model": model, "messages": messages, "stream": False, "think": False, "options": {"temperature": 0}}
     if num_ctx:
         body["options"]["num_ctx"] = num_ctx

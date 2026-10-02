@@ -61,7 +61,7 @@ Full scorecards with every miss and every raw answer: Fieldstone [8B](evals/resu
 
 | Path | What it is |
 |---|---|
-| `staffbox/`, `bin/staffbox` | The CLI: `check`, `context`, `ask`, `quote`, `log`, `eval`; `actions.py` holds the quote action |
+| `staffbox/`, `bin/staffbox` | The CLI: `check`, `context`, `ask`, `quote`, `log`, `eval`, `review`, `addtest`, `inbox`; `actions.py` holds the quote action, `inbox.py` the draft-only mailbox door |
 | `examples/peachtree-cabinet-works/`, `examples/fieldstone-it/` | The two demo brains and their test sets (`make_tests.py` rebuilds each; CI checks that they match) |
 | `profile/vault/` | The empty brain a new site starts from, Obsidian-ready |
 | `profile/skills/staffbox-brain/` | The Hermes skill: read context, answer only from it, log every task |
@@ -73,10 +73,17 @@ Full scorecards with every miss and every raw answer: Fieldstone [8B](evals/resu
 
 ## How a site goes live
 
-1. Collect 30 to 50 of the site's real past requests and their right answers. That is the test set.
-2. Seed the brain from the site's own price sheets, terms and procedures.
-3. Run the scorecard. Fix in this order: the brain first, then a tool, then a bigger model, and re-run each time.
-4. Go live only on the workflows that pass. Each month's review hour re-runs the test, and every correction becomes a new test.
+Each step is a command, so the loop is the product, not a promise.
+
+| Step | What happens | Command |
+|---|---|---|
+| 1. Test set | 30 to 50 of the site's real past requests with the answers it actually sent. 10 are held back and graded blind by the site. | a `tests.jsonl` file |
+| 2. Brain | Seed the brain from the site's own price sheets, terms and procedures. | `staffbox check VAULT` |
+| 3. Score | Run the test set. For quotes the scorecard shows: share priced, share right with no edits, and 90th-percentile time. A refusal counts as a miss. | `staffbox eval VAULT TESTS --modes brain+quote` |
+| 4. Fix | Fix in order: brain first, then a tool, then a bigger model. Re-run after each fix. | `staffbox eval` again |
+| 5. Gate | A task type goes live only if it meets the bar agreed before day 0. | `staffbox review NEW.jsonl --bar quote=85` (exit code 3 = not live) |
+| 6. Work | Requests land in a folder (or a synced mailbox). Draft replies land in a drafts folder, citing the pricing notes and their dates. A person sends. There is no sending code in Staffbox. | `staffbox inbox VAULT --in requests/ --drafts drafts/` |
+| 7. Monthly review | Re-run the test, diff against last month (fixed, regressed, new), and turn every correction into a new test. | `staffbox review NEW.jsonl --prev OLD.jsonl` · `staffbox addtest` |
 
 ## Data policy in one paragraph
 
