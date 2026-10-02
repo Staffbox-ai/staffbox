@@ -46,6 +46,18 @@ What this shows:
 - **The remaining miss** is the same in both models: "Are you hiring?" was answered "not in vault" instead of being routed to the `other` queue.
 - The test prompts are templated and the data is fictional. A real site's scorecard uses 30 to 50 of its own past requests.
 
+### A model option that is not Qwen (2 October 2026)
+
+Some buyers cannot use models from certain vendors. Georgia's state IT standard SS-22-002 (revised 30 June 2025) lists "Alibaba products and services" and DeepSeek as prohibited on executive-branch state systems, and Qwen is developed by Alibaba Cloud. Whether a locally run open-weight model falls under that is the buyer's decision, so we also score OpenAI's open-weight `gpt-oss-20b` (Apache 2.0) with the same brain and quote action:
+
+| `gpt-oss-20b` + quote action v2.3, Dell RTX 3090 | Score |
+|---|---|
+| Fieldstone IT, 40 | **39/40** |
+| Peachtree Cabinet Works, 40 | **40/40** |
+| Messy requests, clean held-out 15 | **15/15** |
+
+The one miss: asked about clients outside Georgia, it repeated the in-state response times instead of saying the brain does not cover them. The model needs about 14 GB, so it is a 32 GB Mac mini or Mac Studio option; its speed on Apple hardware is not measured yet. Files: [Fieldstone](evals/results/2026-10-02-fieldstone-it-tests-dell-3090-gpt-oss-20b-quote-v2.3.md) · [Peachtree](evals/results/2026-10-02-peachtree-cabinet-works-tests-dell-3090-gpt-oss-20b-quote-v2.3.md) · [messy 15](evals/results/2026-10-02-fieldstone-it-tests-heldout-ugly2-dell-3090-gpt-oss-20b-quote-v2.3.md).
+
 ### Messy requests, held out, and a cloud comparison (2 October 2026)
 
 Real quote requests arrive with typos, forwarded threads, signatures, two items in one email, "two dozen", and "no setup". Two sets test that. [`tests-heldout-ugly.jsonl`](examples/fieldstone-it/tests-heldout-ugly.jsonl) (20 requests) was held out from the first quote action, then **used while we fixed v2**, so its later scores are not a clean held-out result. [`tests-heldout-ugly2.jsonl`](examples/fieldstone-it/tests-heldout-ugly2.jsonl) (15 requests) was committed before the changes it measured and is the clean one. Expected totals are computed by code from the vault's price list.

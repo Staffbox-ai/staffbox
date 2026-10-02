@@ -168,8 +168,14 @@ def money(s):
     return float(m[-1].replace(",", "").rstrip(".")) if m else None
 
 
+def _norm(s):
+    """Spacing differences are not errors: non-breaking and thin spaces, and '25 %' vs '25%'."""
+    s = str(s).lower().replace("\u00a0", " ").replace("\u202f", " ").replace("\u2009", " ")
+    return re.sub(r"(\d)\s+%", r"\1%", re.sub(r"[ \t]+", " ", s))
+
+
 def grade(test, answer):
-    a = answer.lower()
+    a = _norm(answer)
     kind = test["type"]
     if kind == "quote":  # the stated total comes first ("$5,094.00 (a + b)") or last ("unit $71.50, total $2,037.75")
         amts = [float(x.replace(",", "").rstrip(".")) for x in re.findall(r"\$\s*([0-9][0-9,]*\.?[0-9]*)", answer)]
@@ -179,7 +185,7 @@ def grade(test, answer):
         return re.sub(r"[^a-z_]", "", a.replace(" ", "_")) .endswith(test["expect"]) or a.strip(" .`'\"") == test["expect"]
     if kind == "unknown":
         return "not in vault" in a or "not in the vault" in a
-    return all(x.lower() in a for x in test["expect"])  # lookup: every required phrase present
+    return all(_norm(x) in a for x in test["expect"])  # lookup: every required phrase present
 
 
 def run(tests, host, model, vault, modes, company, workers=1, num_ctx=None, progress=print):

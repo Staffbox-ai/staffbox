@@ -52,7 +52,7 @@ No SOC 2 or other certification. No cyber or errors-and-omissions insurance conf
 1. **Parties.** Staffbox, Inc. and the customer on the order form.
 2. **Order form.** Units, site, install date, IT provider of record, and price: founding sites (first 100 units company-wide) $0 onboarding and $595 a month per unit for as long as the unit is live; from unit 101, $1,800 onboarding and $695 a month per unit. Mac Studio sites quoted per site.
 3. **Hardware title.** Staffbox's during a free pilot; passes to the customer when the first monthly fee is paid.
-4. **Term.** Month to month; either party may end with [30] days' notice.
+4. **Term.** Month to month; the customer may end at any time (the site promises "cancel any time"); Staffbox gives [30] days' notice before ending service.
 5. **Service.** Software and model updates, monitoring through the IT provider, and one hour a month of review that re-runs the test set.
 6. **Outputs.** Drafts for a person to check. No warranty that outputs are accurate.
 7. **Liability.** Mutual cap of [fees paid in the prior 12 months, or a fixed amount]; exclusions and carve-outs per counsel.
