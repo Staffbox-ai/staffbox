@@ -32,6 +32,8 @@ ok "macOS $(sw_vers -productVersion), $(sysctl -n machdep.cpu.brand_string), ${R
 [ $RAM_GB -ge 32 ] || warn "${RAM_GB} GB runs the 8B model well; 32 GB is recommended for customer sites."
 [ $FREE_GB -ge 40 ] || die "Needs at least 40 GB free disk for the models."
 defaults read MobileMeAccounts Accounts 2>/dev/null | grep -q AccountID && warn "An Apple ID is signed in. A customer unit should have none." || ok "No personal Apple ID on this Mac"
+FV=$(fdesetup status 2>/dev/null | head -1)
+case "$FV" in *"is On"*) ok "Disk encryption: $FV" ;; *) warn "Disk encryption is OFF. Turn it on before any customer data is loaded: sudo fdesetup enable (keep the recovery key with the customer's IT provider)." ;; esac
 
 step "Developer tools (for git)"
 if xcode-select -p >/dev/null 2>&1; then ok "Command Line Tools present"
@@ -203,6 +205,7 @@ cat > $SB/UNIT.md <<EOF
 | Installed | $(date '+%Y-%m-%d %H:%M') by $(whoami) |
 | Mac | macOS $(sw_vers -productVersion), ${RAM_GB} GB memory |
 | Worker | Hermes profile "$PROFILE" · $(hermes --version 2>/dev/null | head -1) |
+| Disk encryption | $(fdesetup status 2>/dev/null | head -1) |
 | Model | $MODEL ${EXTRA_MODELS} via Ollama $($OLLAMA --version 2>/dev/null | awk '{print $NF}'), listening on 127.0.0.1 only |
 | Cloud AI | $CLOUD |
 | Brain | $SB/vault · demo brains in $SB/examples |
