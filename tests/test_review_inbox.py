@@ -33,6 +33,10 @@ class PassBar(unittest.TestCase):
         self.assertEqual((q["n"], q["priced"], q["right"]), (3, 2, 1))
         self.assertEqual(evals.p90([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]), 10)
 
+    def test_spacing_is_not_an_error(self):
+        self.assertTrue(evals.grade({"type": "lookup", "expect": ["25%"]}, "25 % of the order total"))
+        self.assertTrue(evals.grade({"type": "lookup", "expect": ["sunday", "2 am"]}, "Sunday 2\u202fam to 5\u202fam."))
+
     def test_total_first_or_last(self):
         g = lambda a: evals.grade({"type": "quote", "expect": 5094.0}, a)
         self.assertTrue(g("$5,094.00 ($2,694.00 for the APs and $2,400.00 for the switch)"))
