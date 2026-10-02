@@ -1,0 +1,20 @@
+{"id": "ugly-01", "type": "quote", "tag": "typo-sku", "prompt": "hey can u price LT14 x 40 w/ setup thx", "expect": 46542.8}
+{"id": "ugly-02", "type": "quote", "tag": "word-qty", "prompt": "Need two dozen 27 inch monitors, set up please.", "expect": 7018.56}
+{"id": "ugly-03", "type": "quote", "tag": "forwarded", "prompt": "---------- Forwarded message ---------\nFrom: Dana Ruiz\nDate: Tue, Sep 29, 2026\nSubject: RE: refresh\n\nWe bought 10 laptops in 2024.\n\nCan we get 15 of the 16in laptops set up for the new team?", "expect": 21570.6}
+{"id": "ugly-04", "type": "quote", "tag": "no-setup", "prompt": "Quote 12 DT-MINI. We will image them ourselves, so no setup.", "expect": 10356.48}
+{"id": "ugly-05", "type": "quote", "tag": "two-items", "prompt": "Need 5 AP-6E and 1 SW-24P for the warehouse, installed.", "expect": 3445.0}
+{"id": "ugly-06", "type": "quote", "tag": "plain-words", "prompt": "price for 30 usb-c docks", "expect": 6410.1}
+{"id": "ugly-07", "type": "unknown", "tag": "ambiguous", "prompt": "Same laptops as last time, 8 of them please.", "expect": "NOT IN VAULT"}
+{"id": "ugly-08", "type": "unknown", "tag": "not-stocked", "prompt": "How much for 10 MacBook Pros, set up?", "expect": "NOT IN VAULT"}
+{"id": "ugly-09", "type": "quote", "tag": "one-unit", "prompt": "We need a firewall for the new office, just the one, installed.", "expect": 1500.0}
+{"id": "ugly-10", "type": "quote", "tag": "old-price", "prompt": "Can you do 25 x UPS-1500 at last year's price of $299?", "expect": 8149.25}
+{"id": "ugly-11", "type": "quote", "tag": "screens", "prompt": "Pls quote 100 24in screens + setup", "expect": 21867.0}
+{"id": "ugly-12", "type": "quote", "tag": "two-items-words", "prompt": "Need a quote: 6 access points (the wifi 6e ones) and 2 of the 24 port poe switches.", "expect": 5094.0}
+{"id": "ugly-13", "type": "unknown", "tag": "bundle", "prompt": "Ballpark for outfitting 12 new hires with a laptop, a dock and 2 monitors each?", "expect": "NOT IN VAULT"}
+{"id": "ugly-14", "type": "quote", "tag": "lowercase", "prompt": "quote 9 lt-16", "expect": 13446.0}
+{"id": "ugly-15", "type": "quote", "tag": "thread", "prompt": "Re: Re: Re: order\n\nAll good on our side. What's the total for the 18 small desktops we discussed?\n\nThanks, M", "expect": 17244.72}
+{"id": "ugly-16", "type": "quote", "tag": "half-half", "prompt": "Quote 40 of the 14 inch laptops, half with setup and half without.", "expect": 44642.8}
+{"id": "ugly-17", "type": "quote", "tag": "rush", "prompt": "need 3 UPS units asap, installed", "expect": 1047.0}
+{"id": "ugly-18", "type": "quote", "tag": "three-items", "prompt": "Quote: 1 x FW-SMB, 1 x SW-24P, 4 x AP-6E for the Buckhead office", "expect": 4496.0}
+{"id": "ugly-19", "type": "quote", "tag": "signature-numbers", "prompt": "Can you price 20 MON-24 with setup?\n\nMarcus Bell | Office Manager\nPeachtree Dental, Suite 300\n404-555-0142", "expect": 4504.8}
+{"id": "ugly-20", "type": "quote", "tag": "discount-ask", "prompt": "Quote 10 x LT-14 with setup. Client is a nonprofit, any extra discount?", "expect": 11980.4}

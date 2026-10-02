@@ -171,7 +171,15 @@ def scorecard(rows, meta):
             cells.append(f"{p}/{len(rs)} ({100*p//max(len(rs),1)}%)")
         lines.append(f"| {t} | " + " | ".join(cells) + " |")
     secs = {m: sum(r["seconds"] for r in rows if r["mode"] == m) / max(1, sum(1 for r in rows if r["mode"] == m)) for m in modes}
-    lines += ["", "Average seconds per answer: " + " · ".join(f"{m} {s:.1f}s" for m, s in secs.items()), "",
+    lines += ["", "Average seconds per answer: " + " · ".join(f"{m} {s:.1f}s" for m, s in secs.items()),
+              "90th-percentile seconds: " + " · ".join(f"{m} {p90([r['seconds'] for r in rows if r['mode'] == m]):.1f}s" for m in modes)]
+    if any(r["type"] == "quote" for r in rows):
+        lines += ["", "Quotes, the pilot pass bar (a refusal is a miss; \"right\" means the exact line total, no edits):", "",
+                  "| Mode | Priced | Right of priced | Right of all |", "|---|---|---|---|"]
+        for m in modes:
+            q = quote_quality([r for r in rows if r["mode"] == m])
+            lines.append(f"| {m} | {q['priced']}/{q['n']} ({q['priced_pct']}%) | {q['right']}/{q['priced']} ({q['right_of_priced_pct']}%) | {q['right']}/{q['n']} |")
+    lines += ["",
               "Modes: `none` = the model alone. `brain` = plus the notes retrieved from the vault. `brain+calc` = plus a calculator tool.", "",
               "Read `none` as a general-purpose assistant with no company knowledge. It cannot pass routing (it does not know the queue names) or \"not in vault\" (it was never told the rule). What matters there is what it does instead: refuse, or invent an answer.", "",
               "## Misses", "", "| Mode | Test | Expected | Got |", "|---|---|---|---|"]
@@ -179,3 +187,23 @@ def scorecard(rows, meta):
         if not r["ok"]:
             lines.append(f"| {r['mode']} | {r['id']} | {r['expect']} | {r['answer'][:90].replace('|', '/')} |")
     return "\n".join(lines) + "\n"
+
+
+def p90(xs):
+    xs = sorted(xs)
+    return xs[min(len(xs) - 1, int(0.9 * len(xs)))] if xs else 0.0
+
+
+def priced(answer):
+    """True when the answer commits to a dollar figure (not a refusal or an escalation)."""
+    a = answer.lower()
+    return money(answer) is not None and "not in vault" not in a and "not in the vault" not in a and "$" in answer
+
+
+def quote_quality(rows):
+    """The pilot pass bar for quote rows: share priced, share right of those priced, right of all."""
+    q = [r for r in rows if r["type"] == "quote"]
+    pr = [r for r in q if priced(r["answer"])]
+    right = sum(r["ok"] for r in pr)
+    pct = lambda a, b: 100 * a // b if b else 0
+    return dict(n=len(q), priced=len(pr), right=right, priced_pct=pct(len(pr), len(q)), right_of_priced_pct=pct(right, len(pr)))
