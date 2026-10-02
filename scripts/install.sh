@@ -1,7 +1,7 @@
 #!/bin/zsh
 # Staffbox unit install for a Mac mini. One command, no sudo, safe to re-run.
 #   git clone https://github.com/Staffbox-ai/staffbox ~/staffbox-src && ~/staffbox-src/scripts/install.sh
-# Options (environment):  PROFILE=zero  MODEL=qwen3:8b  EXTRA_MODELS="qwen3:14b"  SKIP_PROOF=1
+# Options (environment):  PROFILE=zero  MODEL=qwen3:8b  EXTRA_MODELS="qwen3:14b"  SKIP_PROOF=1  DEMO_UNIT=1 (allow FileVault off on a demo box)
 # What it does, in order: checks the Mac, installs Ollama (local-only), pulls the model, installs Hermes Agent,
 # creates the worker profile with cloud models OFF, sets up the brain and demo brains, then proves the unit
 # with a short scorecard and writes a unit card to ~/staffbox/UNIT.md. It also brands the desktop and starts
@@ -33,7 +33,11 @@ ok "macOS $(sw_vers -productVersion), $(sysctl -n machdep.cpu.brand_string), ${R
 [ $FREE_GB -ge 40 ] || die "Needs at least 40 GB free disk for the models."
 defaults read MobileMeAccounts Accounts 2>/dev/null | grep -q AccountID && warn "An Apple ID is signed in. A customer unit should have none." || ok "No personal Apple ID on this Mac"
 FV=$(fdesetup status 2>/dev/null | head -1)
-case "$FV" in *"is On"*) ok "Disk encryption: $FV" ;; *) warn "Disk encryption is OFF. Turn it on before any customer data is loaded: sudo fdesetup enable (keep the recovery key with the customer's IT provider)." ;; esac
+case "$FV" in
+  *"is On"*) ok "Disk encryption: $FV" ;;
+  *) if [ -n "$DEMO_UNIT" ]; then warn "Disk encryption is OFF (DEMO_UNIT=1: allowed for a demo box with no customer data)."
+     else die "Disk encryption is OFF. A customer unit needs it: run 'sudo fdesetup enable', keep the recovery key with the customer's IT provider, then run this again. (Demo box with no customer data: DEMO_UNIT=1)"; fi ;;
+esac
 
 step "Developer tools (for git)"
 if xcode-select -p >/dev/null 2>&1; then ok "Command Line Tools present"

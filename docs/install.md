@@ -10,6 +10,7 @@ For the IT provider doing the install, on a Mac (mini or Studio). For a Linux + 
 1. Turn it on and follow Setup Assistant. **Apple ID: choose "Set up later".** A customer unit has no personal Apple ID.
 2. Create the local account the customer will own (for example `staffbox`). Record the password in the customer's password vault.
 3. System Settings > General > Sharing: turn on **Remote Login** if you will finish the install from your desk. Energy: prevent sleep, start up after a power failure.
+4. Turn on disk encryption: `sudo fdesetup enable`, and keep the recovery key in the customer's password vault. The installer stops if FileVault is off (a demo box with no customer data can run it with `DEMO_UNIT=1`).
 
 ## 2. One command (40 min, from anywhere)
 ```sh

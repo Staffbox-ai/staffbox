@@ -15,7 +15,7 @@ What happens to a customer's data, where it lives, who can reach it, and what we
 
 | Path | What it can do | How that is enforced |
 |---|---|---|
-| Mailbox door (`staffbox inbox`) | Reads request files from one folder; writes draft replies to another; appends one line per draft to the log | There is no sending code in Staffbox. A person opens the drafts and sends them. |
+| Mailbox door (`staffbox inbox`) | Reads request files from one folder; writes draft replies to another; appends one line per draft to the log | There is no sending code in Staffbox. A person opens the drafts and sends them. If the folders are synced with the customer's mail system, the mail stays where that system already keeps it; Staffbox adds no new copy outside the box. |
 | Chat assistant (Hermes Agent profile) | Reads files; writes new notes and its own task list | The installer turns off shell, code execution, browser, computer control, web access, outside connections, delegation and scheduled jobs. A site can turn any of them on, in writing. |
 | The brain | Read by both paths | Kept in git; every change is versioned and can be undone. `log.md` is append-only and `staffbox check` fails if an old line changes. |
 
@@ -23,7 +23,7 @@ What happens to a customer's data, where it lives, who can reach it, and what we
 
 | Control | Default | Status |
 |---|---|---|
-| Disk encryption | FileVault on before any customer data is loaded | The installer checks `fdesetup status`, warns if it is off, and records the result in the unit's install proof; the IT provider turns it on and keeps the recovery key |
+| Disk encryption | FileVault on before any customer data is loaded | The installer stops if FileVault is off (a demo box with no customer data can override with DEMO_UNIT=1) and records the status in the unit's install proof; the IT provider turns it on and keeps the recovery key |
 | Firewall | macOS firewall on, stealth mode on | Set at install |
 | Remote access | SSH with keys only, one key per named person; password login off | Set at install; sessions agreed with the customer's IT contact in advance; macOS records each SSH login |
 | Model server | Listens on 127.0.0.1 only | Set at install |
