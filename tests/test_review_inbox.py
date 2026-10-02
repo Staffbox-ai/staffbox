@@ -97,3 +97,29 @@ class QuoteDesk(unittest.TestCase):
         with mock.patch.object(evals, "chat", return_value=("UNCLEAR", 3)):
             out, _, _ = evals.route_quote("h", "m", self.P, "Same laptops as last time, 8 of them.")
         self.assertIn("NOT IN VAULT", out)
+
+
+class Guards(unittest.TestCase):
+    def setUp(self):
+        from staffbox import actions
+        self.a, self.P = actions, actions.load_pricing(FIELD)
+
+    def test_supported(self):
+        s = lambda t, k: self.a.supported(self.P, t, k)
+        self.assertTrue(s("hey can u price LT14 x 40", "LT-14"))
+        self.assertTrue(s("40 of the 14 inch laptops", "LT-14"))
+        self.assertFalse(s("Same laptops as last time, 8 of them", "LT-14"))
+        self.assertTrue(s("price for 30 usb-c docks", "DOCK-C"))
+        self.assertTrue(s("Pls quote 100 24in screens", "MON-24"))
+        self.assertTrue(s("a firewall for the new office", "FW-SMB"))
+
+    def test_setup_only_dropped_when_said(self):
+        self.assertTrue(self.a.says_no_setup("We will image them ourselves, so no setup."))
+        self.assertTrue(self.a.says_no_setup("Just the hardware please"))
+        self.assertFalse(self.a.says_no_setup("price for 30 usb-c docks"))
+
+    def test_route_restores_setup(self):
+        from unittest import mock
+        with mock.patch.object(evals, "chat", return_value=("QUOTE: sku=DOCK-C; qty=30; setup=no", 5)):
+            out, _, _ = evals.route_quote("h", "m", self.P, "price for 30 usb-c docks")
+        self.assertIn("$6,410.10", out)

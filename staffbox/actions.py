@@ -185,3 +185,26 @@ def match_description(pricing, text):
     if not best or (len(best) > 1 and best[0][0] == best[1][0]):
         return None
     return best[0][1]
+
+
+NO_SETUP = re.compile(r"no setup|without setup|hardware only|just the hardware|(?:we|we'll|we will|ourselves)[^.]{0,40}(?:image|set (?:them|it) up|plug|install)|ourselves", re.I)
+
+
+def says_no_setup(text):
+    return bool(NO_SETUP.search(text))
+
+
+def supported(pricing, text, sku):
+    """True when the request names something that identifies this SKU: its code, or a description word no other
+    item shares. 'laptops' alone does not pick between two laptops, so the model's choice is not accepted."""
+    t = re.sub(r"(\d+)\s*(?:in\b|inch\b|\")", r"\1in", text, flags=re.I)
+    flat = re.sub(r"[^A-Z0-9]", "", t.upper())
+    if re.sub(r"[^A-Z0-9]", "", sku.upper()) in flat:
+        return True
+    descs = {k: _tokens(v["desc"]) for k, v in pricing["skus"].items()}
+    df = {}
+    for d in descs.values():
+        for w in d:
+            df[w] = df.get(w, 0) + 1
+    unique = {w for w in descs.get(sku, set()) if df[w] == 1}
+    return bool(unique & _tokens(t))
