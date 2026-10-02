@@ -92,36 +92,49 @@ def ask(host, model, vault, question, mode="brain", company="the company", num_c
 
 
 ROUTE = (
-    "You turn an office request into one pricing call, or say NONE.\n"
+    "You turn an office request into pricing calls, or say NONE.\n"
     "Price list SKUs: {skus}\n{opts}"
-    "If the request asks for the price of a quantity of one item, reply with ONLY one line:\n"
-    "QUOTE: sku=<SKU from the list, or the closest description if no SKU fits>; qty=<number>{optfmt}\n"
-    "Use the SKU whose description matches the request. If the item is not on the list, still write the item as sku=<what they asked for>.\n"
+    "If the request asks for the price of one or more items, reply with ONLY one line per item:\n"
+    "QUOTE: sku=<SKU from the list, or the words they used if no SKU fits>; qty=<number>; setup=<yes, or no if they say no setup / hardware only / they will set it up>{optfmt}\n"
+    "Write numbers as digits (a dozen = 12). If the item or the quantity is unclear (\"same as last time\", \"some laptops\"), reply with ONLY: UNCLEAR\n"
     "If the request is anything else (a policy question, routing an email, a non-price question), reply with ONLY: NONE"
 )
 
 
 def route_quote(host, model, pricing, question, num_ctx=None):
-    """Action routing: a short dedicated call decides whether this is a quote, and extracts SKU, qty and options.
-    Code prices the line. Returns (answer text or "", tokens, calls)."""
+    """Action routing: a short dedicated call decides whether this is a quote and extracts one line per item
+    (SKU, quantity, setup, options). Code prices every line and adds them up. Returns (answer text or "", tokens, calls)."""
     skus = "; ".join(f"{k} = {v['desc']}" for k, v in pricing["skus"].items())
     opts = "".join(f"Options for {a}: {', '.join(t)}\n" for a, t in pricing["surcharges"].items())
     optfmt = "".join(f"; {a}=<value if named>" for a in pricing["surcharges"])
+    text = actions.words_to_digits(question)
     out, n = chat(host, model, [{"role": "system", "content": ROUTE.format(skus=skus, opts=opts, optfmt=optfmt)},
-                                {"role": "user", "content": question}], num_ctx)
-    m = re.search(r"QUOTE:\s*(.+)", out)
-    if not m:
+                                {"role": "user", "content": text}], num_ctx)
+    if re.search(r"\bUNCLEAR\b", out) and "QUOTE:" not in out:
+        return ("The request does not say exactly which item or how many.\nANSWER: NOT IN VAULT: item or quantity unclear. "
+                "Ask the customer which model and how many."), n, 0
+    lines = re.findall(r"QUOTE:\s*(.+)", out)
+    if not lines:
         return "", n, 0
-    try:
-        sku, qty, o = actions.parse_quote_line(m.group(1))
-        o = {k: v for k, v in o.items() if v and not v.startswith("<")}
-        sku, qty, o = actions.resolve(pricing, question, sku, qty, o)
-        total, work = actions.quote(pricing, sku, qty, o)
-    except Exception as e:
-        return "", n, 1
-    if total is None:
-        return f"{work}.\nANSWER: NOT IN VAULT: {work}. Ask the person who owns pricing (see people).", n, 1
-    return f"Quote action: {work}.\nANSWER: ${total:,.2f}", n, 1
+    works, total = [], 0.0
+    for ln in lines:
+        try:
+            sku, qty, o = actions.parse_quote_line(ln)
+            o = {k: v for k, v in o.items() if v and not v.startswith("<")}
+            if len(lines) == 1:  # one item: the request text can correct the extraction
+                sku, qty, o = actions.resolve(pricing, text, sku, qty, o)
+            elif sku not in pricing["skus"]:
+                sku = actions.match_description(pricing, sku) or sku
+            t, work = actions.quote(pricing, sku, qty, o)
+        except Exception:
+            return "", n, len(works) + 1
+        if t is None:
+            return f"{work}.\nANSWER: NOT IN VAULT: {work}. Ask the person who owns pricing (see people).", n, len(lines)
+        works.append(work); total += t
+    total = round(total, 2)
+    if len(works) == 1:
+        return f"Quote action: {works[0]}.\nANSWER: ${total:,.2f}", n, 1
+    return "Quote action:\n" + "\n".join(f"- {w}" for w in works) + f"\nANSWER: ${total:,.2f} ({len(works)} lines)", n, len(works)
 
 
 def final_answer(text):
@@ -138,9 +151,10 @@ def money(s):
 def grade(test, answer):
     a = answer.lower()
     kind = test["type"]
-    if kind == "quote":
-        got = money(answer)
-        return got is not None and abs(got - test["expect"]) <= 0.011
+    if kind == "quote":  # the stated total comes first ("$5,094.00 (a + b)") or last ("unit $71.50, total $2,037.75")
+        amts = [float(x.replace(",", "").rstrip(".")) for x in re.findall(r"\$\s*([0-9][0-9,]*\.?[0-9]*)", answer)]
+        cands = [amts[0], amts[-1]] if amts else ([money(answer)] if money(answer) is not None else [])
+        return any(abs(c - test["expect"]) <= 0.011 for c in cands)
     if kind == "triage":
         return re.sub(r"[^a-z_]", "", a.replace(" ", "_")) .endswith(test["expect"]) or a.strip(" .`'\"") == test["expect"]
     if kind == "unknown":

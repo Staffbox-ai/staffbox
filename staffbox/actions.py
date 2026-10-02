@@ -82,6 +82,7 @@ def parse_quote_line(line):
 def quote(pricing, sku, qty, options=None):
     """Price one line. Returns (total or None, one-line working that explains it)."""
     options = {k.lower(): str(v).lower() for k, v in (options or {}).items()}
+    no_setup = options.pop("setup", "yes") in ("no", "none", "false", "without", "0")
     item = pricing["skus"].get(sku.upper())
     if not sku:
         return None, "no stocked item on the price list matches the request: special or custom order, not priced here"
@@ -101,11 +102,11 @@ def quote(pricing, sku, qty, options=None):
     unit = round(item["price"] * (1 + pct), 2)
     disc = next((d for lo, hi, d in pricing["tiers"] if lo <= qty <= hi), 0.0)
     goods = round(round(unit * qty, 2) * (1 - disc), 2)
-    setup = round(qty * item["setup"], 2)
+    setup = 0.0 if no_setup else round(qty * item["setup"], 2)
     total = round(goods + setup, 2)
     work = f"{qty} x {sku} at ${unit:,.2f}" + (f" ({', '.join(used)})" if used else "")
     work += f" = ${unit * qty:,.2f}" + (f", less {disc:.0%} = ${goods:,.2f}" if disc else "")
-    work += (f", plus setup {qty} x ${item['setup']:,.2f} = ${setup:,.2f}" if setup else "") + f"; line total ${total:,.2f}"
+    work += (f", plus setup {qty} x ${item['setup']:,.2f} = ${setup:,.2f}" if setup else (", no setup" if no_setup and item["setup"] else "")) + f"; line total ${total:,.2f}"
     return total, work
 
 
@@ -113,13 +114,13 @@ def resolve(pricing, question, sku, qty, options):
     """Check the model's extraction against the request text; the text wins when they disagree.
     SKU: must be on the price list, else a SKU code or description found in the request.
     Quantity: must be a number in the request that is not part of a size (6x24) or a SKU code."""
-    q = question.upper()
+    q = words_to_digits(question).upper()
     if sku not in pricing["skus"]:
         codes = [k for k in pricing["skus"] if k in q]
         sing = lambda t: re.sub(r"(\w)S\b", r"\1", t.upper())  # "SHAKER DOORS" ~ "SHAKER DOOR"
         descs = [k for k, v in pricing["skus"].items() if v["desc"] and sing(v["desc"]) in sing(q)]
         found = codes or sorted(descs, key=lambda k: -len(pricing["skus"][k]["desc"]))
-        sku = found[0] if found else sku
+        sku = found[0] if found else (match_description(pricing, sku) or sku)
     text = q
     for k, v in pricing["skus"].items():
         text = text.replace(k, " ").replace(v["desc"].upper(), " ") if v["desc"] else text.replace(k, " ")
@@ -134,3 +135,53 @@ def resolve(pricing, question, sku, qty, options):
         if named and opts.get(attr) not in table:
             opts[attr] = named[0]
     return sku, qty, opts
+
+
+WORDS = {w: i for i, w in enumerate("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen "
+                                     "sixteen seventeen eighteen nineteen".split())}
+WORDS.update({"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90})
+SYN = {"screen": "monitor", "display": "monitor", "wi": "wifi", "ap": "access point", "battery": "ups", "backup": "ups",
+       "docking": "dock", "usbc": "usb-c", "pc": "desktop", "computer": "desktop", "notebook": "laptop"}
+
+
+def words_to_digits(text):
+    """'two dozen' -> '24', 'a dozen' -> '12', 'twenty-five' -> '25', 'just the one' -> '1'."""
+    t = re.sub(r"\bjust the one\b|\bthe one\b", " 1 ", text, flags=re.I)
+    def num(m):
+        a, b = m.group(1).lower(), (m.group(2) or "").lower()
+        return str(WORDS[a] + (WORDS[b] if b else 0))
+    t = re.sub(r"\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[- ](one|two|three|four|five|six|seven|eight|nine))?\b", num, t, flags=re.I)
+    t = re.sub(r"\b(a|one|two|three|four|five|six)\s+dozen\b", lambda m: str(12 * (1 if m.group(1).lower() in ("a", "one") else WORDS[m.group(1).lower()])), t, flags=re.I)
+    t = re.sub(r"\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)\b",
+               lambda m: str(WORDS[m.group(1).lower()]), t, flags=re.I)
+    return t
+
+
+def _tokens(s):
+    out = set()
+    for w in re.findall(r"[a-z0-9]+", s.lower().replace("usb-c", "usbc").replace("wi-fi", "wifi")):
+        w = re.sub(r"(?<=[a-z]{2})s$", "", w)
+        w = re.sub(r"^(\d+)(?:inch)$", r"\1in", w)
+        out |= set(SYN.get(w, w).split())
+    return out - {"the", "a", "of", "and", "for", "with", "x", "port"} | ({"port"} & set())
+
+
+def match_description(pricing, text):
+    """The stocked SKU whose description best matches free text, or None when nothing clearly matches.
+    A word found in only one item's description is decisive; otherwise two shared words are needed. A tie means ask."""
+    t = _tokens(text)
+    descs = {k: _tokens(v["desc"]) | _tokens(k) for k, v in pricing["skus"].items()}
+    df = {}
+    for d in descs.values():
+        for w in d:
+            df[w] = df.get(w, 0) + 1
+    best = []
+    for k, d in descs.items():
+        hit = d & t
+        unique = any(df[w] == 1 for w in hit)
+        if hit and (unique or len(hit) >= 2):
+            best.append((len(hit) + (1 if unique else 0), k))
+    best.sort(reverse=True)
+    if not best or (len(best) > 1 and best[0][0] == best[1][0]):
+        return None
+    return best[0][1]
