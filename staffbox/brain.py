@@ -25,20 +25,25 @@ class Note:
 
 
 def parse_frontmatter(raw):
-    """Small YAML subset: `key: value` and `key: [a, b]`. Returns (meta, body, error)."""
+    """Small YAML subset: `key: value`, `key: [a, b]` and the block list Obsidian writes
+    (`key:` then `  - a` lines). Returns (meta, body, error)."""
     if not raw.startswith("---\n"):
         return {}, raw, "no frontmatter"
     end = raw.find("\n---", 4)
     if end < 0:
         return {}, raw, "frontmatter not closed"
-    meta = {}
+    meta, block = {}, None  # block = key whose value is a `  - item` list
     for line in raw[4:end].splitlines():
         if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        if block and line.lstrip().startswith("- "):
+            meta[block] = (meta[block] or []) + [line.lstrip()[2:].strip()]
             continue
         if ":" not in line:
             return meta, raw[end + 4:], f"bad frontmatter line: {line!r}"
         k, v = line.split(":", 1)
         v = v.strip()
+        block = k.strip() if not v else None
         meta[k.strip()] = [x.strip() for x in v[1:-1].split(",") if x.strip()] if v.startswith("[") and v.endswith("]") else v
     return meta, raw[end + 4:].lstrip("\n"), None
 
