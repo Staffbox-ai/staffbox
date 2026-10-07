@@ -118,13 +118,10 @@ def route_quote(host, model, pricing, question, num_ctx=None):
     if not lines:
         return "", n, 0
     miss = actions.unstocked(pricing, text)
-    skipped = []
+    skipped, bad = [], set()
     if miss and actions.says_skip_unstocked(text):  # the customer said: if not stocked, quote the rest
         bad = {v for a, _ in miss for _, v, _, _ in actions._specs(a)}
-        keep = [ln for ln in lines if not ({v for _, v, _, _ in actions._specs(actions.parse_quote_line(ln)[0] + " " +
-                pricing["skus"].get(actions.parse_quote_line(ln)[0], {}).get("desc", ""))} & bad)]
-        if keep:
-            lines, skipped, miss = keep, [a for a, _ in miss], []
+        skipped, miss = [a for a, _ in miss], []
     if miss:
         ask, stocked = miss[0]
         return (f"The request asks for {ask}, which is not on the price list (we stock: {'; '.join(stocked)}). "
@@ -153,6 +150,8 @@ def route_quote(host, model, pricing, question, num_ctx=None):
                 sku, qty, o = actions.resolve(pricing, text, sku, qty, o)
             elif sku not in pricing["skus"]:
                 sku = actions.match_description(pricing, sku) or sku
+            if bad and {v for _, v, _, _ in actions._specs(ln + " " + pricing["skus"].get(sku, {}).get("desc", ""))} & bad:
+                continue  # the unstocked item the customer said to leave out, whatever SKU the model wrote for it
             if sku in pricing["skus"] and not actions.supported(pricing, text, sku):
                 return ("The request does not name one stocked item exactly; it may be a special order.\n"
                         "ANSWER: NOT IN VAULT: the request does not name one stocked item exactly. Ask the customer which model, "
@@ -165,6 +164,8 @@ def route_quote(host, model, pricing, question, num_ctx=None):
         if t is None:
             return f"{work}.\nANSWER: NOT IN VAULT: {work}. Ask the person who owns pricing (see people).", n, len(lines)
         works.append(work); total += t
+    if not works:
+        return "", n, 0
     total = round(total, 2)
     note = f"; not quoted, not stocked: {', '.join(skipped)}" if skipped else ""
     if len(works) == 1:

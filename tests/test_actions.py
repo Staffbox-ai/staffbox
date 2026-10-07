@@ -75,6 +75,11 @@ class Unstocked(unittest.TestCase):
                                                        "If not, just quote the 24x30s.")
             self.assertTrue(evals.grade({"type": "quote", "expect": 1278.22}, evals.final_answer(out)), out)
             self.assertIn("not quoted, not stocked: 15x30 slab doors", out)
+            evals.chat = lambda *a, **k: ("QUOTE: sku=SL-2430; qty=25; species=white oak; finish=painted; setup=yes\n"
+                                          "QUOTE: sku=SL-1530; qty=1; species=white oak; finish=painted; setup=yes", 0)
+            out, _, _ = evals.route_quote("", "", p, "I need 25 slab doors 24x30, white oak, painted. Also, any 15x30 slab doors? "
+                                                       "If not, just quote the 24x30s.")  # 5 Oct mini: model wrote a SKU we don't have
+            self.assertTrue(evals.grade({"type": "quote", "expect": 1278.22}, evals.final_answer(out)), out)
         finally:
             evals.chat = real
 
