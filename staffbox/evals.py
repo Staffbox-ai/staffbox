@@ -117,6 +117,20 @@ def route_quote(host, model, pricing, question, num_ctx=None):
     lines = re.findall(r"QUOTE:\s*(.+)", out)
     if not lines:
         return "", n, 0
+    miss = actions.unstocked(pricing, text)
+    skipped = []
+    if miss and actions.says_skip_unstocked(text):  # the customer said: if not stocked, quote the rest
+        bad = {v for a, _ in miss for _, v, _, _ in actions._specs(a)}
+        keep = [ln for ln in lines if not ({v for _, v, _, _ in actions._specs(actions.parse_quote_line(ln)[0] + " " +
+                pricing["skus"].get(actions.parse_quote_line(ln)[0], {}).get("desc", ""))} & bad)]
+        if keep:
+            lines, skipped, miss = keep, [a for a, _ in miss], []
+    if miss:
+        ask, stocked = miss[0]
+        return (f"The request asks for {ask}, which is not on the price list (we stock: {'; '.join(stocked)}). "
+                "A different item is never substituted.\n"
+                f"ANSWER: NOT IN VAULT: {ask} is not on the price list (we stock: {'; '.join(stocked)}). "
+                "Ask the customer whether a stocked item works, or the person who owns pricing if it is a special order."), n, len(lines)
     works, total = [], 0.0
     parsed = []
     for ln in lines:
@@ -152,9 +166,10 @@ def route_quote(host, model, pricing, question, num_ctx=None):
             return f"{work}.\nANSWER: NOT IN VAULT: {work}. Ask the person who owns pricing (see people).", n, len(lines)
         works.append(work); total += t
     total = round(total, 2)
+    note = f"; not quoted, not stocked: {', '.join(skipped)}" if skipped else ""
     if len(works) == 1:
-        return f"Quote action: {works[0]}.\nANSWER: ${total:,.2f}", n, 1
-    return "Quote action:\n" + "\n".join(f"- {w}" for w in works) + f"\nANSWER: ${total:,.2f} ({len(works)} lines)", n, len(works)
+        return f"Quote action: {works[0]}.\nANSWER: ${total:,.2f}" + (f" (1 line{note})" if note else ""), n, 1
+    return "Quote action:\n" + "\n".join(f"- {w}" for w in works) + f"\nANSWER: ${total:,.2f} ({len(works)} lines{note})", n, len(works)
 
 
 def final_answer(text):

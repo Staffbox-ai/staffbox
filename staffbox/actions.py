@@ -195,6 +195,59 @@ def says_no_setup(text):
     return bool(NO_SETUP.search(text))
 
 
+SPEC = re.compile(r"\b(\d+)\s*[x×]\s*(\d+)\b|\b(\d+(?:\.\d+)?)\s*(?:-\s*)?(in|inch|inches|\"|ft|foot|feet|'|port|va)\b", re.I)
+UNIT = {"in": "in", "inch": "in", "inches": "in", '"': "in", "ft": "ft", "foot": "ft", "feet": "ft", "'": "ft", "port": "port", "va": "va"}
+
+
+def _specs(s):
+    """[(unit, value, start, end)] for sizes (15x30), lengths (10ft), screens (27in), ports (48-port) and VA (1000VA)."""
+    out = []
+    for m in SPEC.finditer(s):
+        if m.group(1):
+            out.append(("size", f"{int(m.group(1))}x{int(m.group(2))}", m.start(), m.end()))
+        else:
+            out.append((UNIT[m.group(4).lower()], f"{float(m.group(3)):g}", m.start(), m.end()))
+    return out
+
+
+def unstocked(pricing, text):
+    """Spec'd items the request asks for that are not stocked in that spec, e.g. '1000VA battery backup' when only
+    a 1500VA one is on the price list. Returns [(what they asked, [stocked descriptions of that item])].
+    The nearest item word in the same sentence names the item; the item counts only if every SKU sharing those words
+    is listed with a spec of the same unit. A nearby stocked item is never substituted: the caller flags it instead."""
+    fam = {}
+    for k, v in pricing["skus"].items():
+        specs = {(u, val) for u, val, _, _ in _specs(v["desc"])}
+        words = _tokens(SPEC.sub(" ", v["desc"])) - {"business", "small", "poe"}
+        fam[k] = (words, specs, v["desc"])
+    found = []
+    for sent in re.split(r"(?<=[.?!])\s+|\n+", words_to_digits(text)):
+        toks = [(m.group(0), m.start(), m.end()) for m in re.finditer(r"[A-Za-z][A-Za-z-]*", sent)]
+        for unit, val, s0, s1 in _specs(sent):
+            near = [t for t in toks if t[2] <= s0][-3:] + [t for t in toks if t[1] >= s1][:3]  # 3 words each side
+            words = set()
+            for w, _, _ in near:
+                words |= _tokens(w)
+            skus = [k for k, (fw, sp, _) in fam.items() if fw and fw & words and any(u == unit for u, _ in sp)]
+            if not skus:
+                continue
+            best = max(len(fam[k][0] & words) for k in skus)
+            skus = [k for k in skus if len(fam[k][0] & words) == best]
+            if any((unit, val) in fam[k][1] for k in skus):
+                continue
+            after = re.match(r"\s*([A-Za-z-]+(?:\s+[A-Za-z-]+)?)", sent[s1:])
+            found.append(((sent[s0:s1] + (" " + after.group(1) if after else "")).strip(), [fam[k][2] for k in skus]))
+    return found
+
+
+SKIP_IF_NOT = re.compile(r"\bif not\b,?\s*(?:then\s*)?(?:just\s*)?(?:quote|price)|\botherwise,?\s*(?:just\s*)?(?:quote|price)", re.I)
+
+
+def says_skip_unstocked(text):
+    """'If not, just quote the 24x30s': the customer said to price what is stocked and leave the rest out."""
+    return bool(SKIP_IF_NOT.search(text))
+
+
 def supported(pricing, text, sku):
     """True when the request names something that identifies this SKU: its code, or a description word no other
     item shares. 'laptops' alone does not pick between two laptops, so the model's choice is not accepted."""
