@@ -17,7 +17,7 @@ For the IT provider doing the install, on a Mac (mini or Studio). For a Linux + 
 xcode-select --install          # click Install on the Mac's screen once; about 10 minutes
 git clone https://github.com/Staffbox-ai/staffbox ~/staffbox-src && ~/staffbox-src/scripts/install.sh
 ```
-The installer prints eight numbered steps and stops with a plain-English fix if anything is wrong; run it again and it carries on. It:
+The installer prints nine numbered steps and stops with a plain-English fix if anything is wrong; run it again and it carries on. It:
 
 | Step | What happens |
 |---|---|
@@ -25,10 +25,13 @@ The installer prints eight numbered steps and stops with a plain-English fix if 
 | 2 | Confirms the developer tools (needed for git) |
 | 3 | Installs Ollama from its official release, checks the publisher's signature, and runs it **on this Mac only** (127.0.0.1), starting at login |
 | 4 | Pulls the model (`MODEL=qwen3:8b` by default; add `EXTRA_MODELS="qwen3:14b"` on 32 GB units) |
-| 5 | Installs Hermes Agent with Nous Research's official installer |
+| 5 | Installs Hermes Agent with Nous Research's official installer, **pinned to v0.21.7** (commit `71d34ba`); warns if the installed version is older than 0.21.6 |
 | 6 | Creates the worker profile with **no cloud fallback providers** |
 | 7 | Sets up the company brain (`~/staffbox/vault`, Obsidian-ready), the demo brains and the `staffbox` command |
-| 8 | Proves the unit: runs the first 10 questions of the Fieldstone IT scorecard and writes a **unit card** to `~/staffbox/UNIT.md` |
+| 8 | Sets up the desktop, dashboard and welcome page |
+| 9 | Proves the unit: runs the first 10 questions of the Fieldstone IT scorecard and writes a **unit card** to `~/staffbox/UNIT.md` |
+
+**Hermes version.** `scripts/install.sh` installs Hermes at the pinned commit (`HERMES_COMMIT`, v0.21.7, 12 Oct 2026) using the upstream installer's `--commit` flag. An existing Hermes is never changed by the installer; it prints the installed version. To update a unit: `hermes update`. To move the pin for new installs, set `HERMES_COMMIT` to a SHA on NousResearch/hermes-agent `main` and update this page.
 
 ## 3. Hand-over (5 min)
 - Show the customer `~/staffbox/UNIT.md`: model, versions, "cloud AI: off", and the install proof score.

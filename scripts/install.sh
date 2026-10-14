@@ -75,14 +75,21 @@ for M in $MODEL ${=EXTRA_MODELS}; do
 done
 
 step "Hermes Agent, the worker"
+# Pinned to a reviewed release (v0.21.7, 12 Oct 2026; includes the v0.21.6 dashboard sign-in fixes).
+# To move the pin: change HERMES_COMMIT to a SHA that is on NousResearch/hermes-agent main.
+HERMES_COMMIT=71d34bad1045610252eda02ee79549436896e784
 if ! command -v hermes >/dev/null 2>&1; then
-  print -r -- "  Installing Hermes Agent from Nous Research's official installer…"
+  print -r -- "  Installing Hermes Agent v0.21.7 from Nous Research's official installer…"
   curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh -o /tmp/hermes-install.sh || die "Could not download the Hermes installer."
-  bash /tmp/hermes-install.sh >> $LOG 2>&1 || die "Hermes install failed. See $LOG"
+  bash /tmp/hermes-install.sh --commit $HERMES_COMMIT >> $LOG 2>&1 || die "Hermes install failed. See $LOG"
   export PATH=$HOME/.local/bin:$PATH; hash -r
+else
+  print -r -- "  Hermes is already installed: $(hermes --version 2>/dev/null | head -1). Not changing it. To upgrade: hermes update"
 fi
 command -v hermes >/dev/null 2>&1 || die "Hermes is installed but not on PATH. Open a new terminal and run this again."
 ok "$(hermes --version 2>/dev/null | head -1)"
+HV=$(hermes --version 2>/dev/null | sed -nE '1s/.*v([0-9]+\.[0-9]+\.[0-9]+).*/\1/p'); autoload -Uz is-at-least
+is-at-least 0.21.6 "${HV:-0}" || warn "Hermes ${HV:-unknown} is older than 0.21.6 (dashboard sign-in fixes). Run: hermes update"
 
 step "Worker profile \"$PROFILE\" (cloud models off)"
 hermes profile create "$PROFILE" --clone --description "Staffbox unit: company worker on local models" >/dev/null 2>&1 || true
