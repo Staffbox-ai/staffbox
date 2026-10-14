@@ -32,6 +32,21 @@ tags: [pricing]                    # optional
 
 This is deliberately simple. Small local models do badly when asked to call a search tool themselves (measured 23 to 27 September 2026 on an 8B model: invented files, wrong tool calls), and well when the right notes are placed in front of them. It needs no embedding model and no index to rebuild, and the answer to "why did it say that" is a list of files.
 
+## Price notes the quote action reads
+
+Notes tagged `pricing` hold the price book; code reads them, the model never does the arithmetic. Beyond the SKU table, option surcharges and volume discounts, a trade price book can use (all optional; examples in `examples/ponce-electric-supply/vault`):
+
+| In the vault | What code does |
+|---|---|
+| `Unit` column: `ft`, `m`, `ea`, `box of 100`, `stick` with "10 ft stick" in the row | quantities converted to the item's unit (pieces to boxes, feet to sticks, reels to feet) only when whole; otherwise it asks |
+| "500 ft reel", "Minimum cut: 25 feet", "Cut charge: $7.50 per cut" (or "cut charge $3 under 50 m" in a row's notes cell) | per-length lines with a cut charge, and a decline below the minimum cut |
+| `Stock` column: `stocked` or anything else (`special order`) | special-order items are declined and sent to a person, never priced or substituted |
+| `- **Contractor level**: 12% off list` (or a Level / Discount table); a customer note with `price_level: contractor` | applied only when the request or the customer's note names it; otherwise list, and the answer says which level was used |
+| A table "Product group (TERMS) / Surcharge / Effective" | surcharge on items whose description names a bracketed term, using the row in effect today |
+| `synonyms.md`: "Customers write / We mean" | the shop's shorthand ("2p", "12-2 nm") rewritten into price-book words before the request is read |
+
+Order on a line: goods, quantity break, price level, group surcharge, cut charge, rounding to the cent at each step.
+
 ## The checks
 
 `staffbox check VAULT` reports: missing frontmatter fields, unknown `type`, bad or future `updated` dates, broken links, duplicate note names, a missing `company.md` or `log.md`, and any edit to an existing log line. Install `scripts/hooks/pre-commit` in the vault's git repo and a broken brain cannot be committed.

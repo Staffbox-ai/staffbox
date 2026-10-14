@@ -11,3 +11,4 @@ The map of this brain. The worker reads [[company]] before every task and append
 - Policies: add notes under `policies/` with `type: policy`.
 - Procedures: add notes under `sops/` with `type: sop`.
 - Reference: price lists, contacts, product specs with `type: reference`.
+- [[synonyms]]: your customers' shorthand and what it means in your price list (the quote action reads it).
