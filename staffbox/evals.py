@@ -105,10 +105,16 @@ ROUTE = (
 def route_quote(host, model, pricing, question, num_ctx=None):
     """Action routing: a short dedicated call decides whether this is a quote and extracts one line per item
     (SKU, quantity, setup, options). Code prices every line and adds them up. Returns (answer text or "", tokens, calls)."""
-    skus = "; ".join(f"{k} = {v['desc']}" for k, v in pricing["skus"].items())
+    tag = lambda v: (f" [{v['unit']}]" if v.get("unit") else "") + ("" if v.get("stock", True) else f" ({v['stock_label']})")
+    skus = "; ".join(f"{k} = {v['desc']}{tag(v)}" for k, v in pricing["skus"].items())
     opts = "".join(f"Options for {a}: {', '.join(t)}\n" for a, t in pricing["surcharges"].items())
     optfmt = "".join(f"; {a}=<value if named>" for a in pricing["surcharges"])
-    text = actions.words_to_digits(question)
+    if any(v.get("unit") for v in pricing["skus"].values()):  # trade price books: keep the customer's own number and unit
+        optfmt += "; unit=<the unit word written after the number (ft, box, piece, reel, stick), or blank>"
+        opts += "Write qty exactly as the customer wrote it (300 pieces -> qty=300; 200 ft -> qty=200); code converts units.\n"
+    raw = actions.words_to_digits(question)  # the customer's words: units and quantities are read from these
+    text = actions.expand_synonyms(pricing, raw)  # the shop's shorthand, rewritten into price-book words
+    level = actions.account_level(pricing, raw)
     out, n = chat(host, model, [{"role": "system", "content": ROUTE.format(skus=skus, opts=opts, optfmt=optfmt)},
                                 {"role": "user", "content": text}], num_ctx)
     if re.search(r"\bUNCLEAR\b", out) and "QUOTE:" not in out:
@@ -158,7 +164,14 @@ def route_quote(host, model, pricing, question, num_ctx=None):
                         "or the person who owns pricing if it is a special order."), n, len(lines)
             if o.get("setup", "yes").lower() in ("no", "none", "false", "without", "0") and not actions.says_no_setup(text):
                 o["setup"] = "yes"  # setup is only dropped when the customer says so
-            t, work = actions.quote(pricing, sku, qty, o)
+            t, work, conv = None, "", ""
+            if sku in pricing["skus"] and pricing["skus"][sku].get("stock", True):
+                qty, conv = actions.to_unit(pricing, sku, qty, raw, o.get("unit"))
+                if qty is None:
+                    work = conv
+            if not work:
+                t, work = actions.quote(pricing, sku, qty, o, level)
+                work = (f"{conv}; " if t is not None and sku in pricing["skus"] and conv else "") + work
         except Exception:
             return "", n, len(works) + 1
         if t is None:
@@ -168,6 +181,8 @@ def route_quote(host, model, pricing, question, num_ctx=None):
         return "", n, 0
     total = round(total, 2)
     note = f"; not quoted, not stocked: {', '.join(skipped)}" if skipped else ""
+    if pricing.get("levels"):  # say which price level was used
+        note += f"; {level} level" if level and level != "list" else "; list price" + ("" if level else ", no account level named")
     if len(works) == 1:
         return f"Quote action: {works[0]}.\nANSWER: ${total:,.2f}" + (f" (1 line{note})" if note else ""), n, 1
     return "Quote action:\n" + "\n".join(f"- {w}" for w in works) + f"\nANSWER: ${total:,.2f} ({len(works)} lines{note})", n, len(works)

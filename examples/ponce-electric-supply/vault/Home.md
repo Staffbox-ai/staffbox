@@ -18,6 +18,7 @@ Start here. The worker reads [[company]] before every task, then the notes below
 - [[price-levels]]: list and contractor price levels
 - [[copper-surcharge]]: the surcharge on copper wire and cable, with its effective date
 - [[units-and-cuts]]: units of measure, reels, coils, cut lengths and the cut charge
+- [[synonyms]]: counter shorthand (sp, 2p, 12-2 nm, wire nuts) and what it means in the price book
 - [[quote-a-line]]: how to price a line, step by step
 
 ## Policies
