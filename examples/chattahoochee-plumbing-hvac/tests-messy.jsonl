@@ -1,0 +1,15 @@
+{"id": "messy-01", "type": "quote", "tag": "multi-abbrev", "prompt": "need 60' 3/4 cu L and 10 3/4 ells, thx", "expect": 299.0}
+{"id": "messy-02", "type": "quote", "tag": "pex-shorthand", "prompt": "pex a 1/2 300 x2 and a bag of 1/2 exp rings", "expect": 372.0}
+{"id": "messy-03", "type": "quote", "tag": "pieces-to-bags", "prompt": "need 200 1/2 crimp rings", "expect": 42.0}
+{"id": "messy-04", "type": "quote", "tag": "trade-pro-heaters", "prompt": "we're trade pro - 3 of the 50 gal gas atmos heaters + 3 exp tanks", "expect": 2119.05}
+{"id": "messy-05", "type": "quote", "tag": "matched-system", "prompt": "3 ton straight cool, condenser + matching AH, contractor acct", "expect": 3681.0}
+{"id": "messy-06", "type": "unknown", "tag": "unmatched-system", "prompt": "3.5 ton condenser w/ the 4 ton air handler (AH-48-V), how much for the pair?", "expect": "NOT IN VAULT"}
+{"id": "messy-07", "type": "quote", "tag": "refrigerant-lbs", "prompt": "50# of 410a for the Smyrna changeout", "expect": 872.5}
+{"id": "messy-08", "type": "unknown", "tag": "refrigerant-part-cylinder", "prompt": "30 lbs 454b", "expect": "NOT IN VAULT"}
+{"id": "messy-09", "type": "quote", "tag": "copper-10ft-cut", "prompt": "45 ft 1/2 type m, 10' sticks pls", "expect": 104.75}
+{"id": "messy-10", "type": "unknown", "tag": "missing-size", "prompt": "need 100 ft of type L for a repipe + 4 ball valves", "expect": "NOT IN VAULT"}
+{"id": "messy-11", "type": "quote", "tag": "filters-pieces-to-cases", "prompt": "24 16x25x1 merv 8 filters and 12 20x25x1 m11", "expect": 194.4}
+{"id": "messy-12", "type": "unknown", "tag": "special-order-heater", "prompt": "got any 50 gal heat pump water heaters? need 2, TP pricing", "expect": "NOT IN VAULT"}
+{"id": "messy-13", "type": "quote", "tag": "contractor-mixed-lines", "prompt": "contractor acct: 1 roll 3/4 pex-b 100' + 25 3/4 pex tees + 6 3/4 pex ball valves", "expect": 213.84}
+{"id": "messy-14", "type": "quote", "tag": "default-stick-cut", "prompt": "3/4 cu L 30 ft, our acct", "expect": 127.7}
+{"id": "messy-15", "type": "unknown", "tag": "pex-not-a-coil", "prompt": "750' 1/2 pex-a", "expect": "NOT IN VAULT"}
