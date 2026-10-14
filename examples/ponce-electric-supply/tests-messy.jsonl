@@ -1,0 +1,15 @@
+{"id": "messy-01", "type": "quote", "tag": "multi-abbrev", "prompt": "need 250' 12-2 nm-b and 6 sp 20a breakers. thx", "expect": 251.4}
+{"id": "messy-02", "type": "quote", "tag": "boxes-of", "prompt": "2 boxes yellow wire nuts + 1 box red pls", "expect": 32.0}
+{"id": "messy-03", "type": "quote", "tag": "feet-to-sticks", "prompt": "pls price 200 ft of 3/4 emt", "expect": 262.0}
+{"id": "messy-04", "type": "quote", "tag": "contractor-slang", "prompt": "contractor acct - 60 of the 6in can retrofits", "expect": 576.84}
+{"id": "messy-05", "type": "quote", "tag": "full-reels", "prompt": "1000ft #12 thhn blk", "expect": 259.2}
+{"id": "messy-06", "type": "unknown", "tag": "missing-length", "prompt": "need some 12/2 for a basement job + 10 1g old work boxes", "expect": "NOT IN VAULT"}
+{"id": "messy-07", "type": "quote", "tag": "pieces-to-boxes", "prompt": "300 yellow wire nuts", "expect": 29.4}
+{"id": "messy-08", "type": "quote", "tag": "two-fixtures", "prompt": "8 2x4 flat panels and 2 exit/emergency combos", "expect": 565.0}
+{"id": "messy-09", "type": "quote", "tag": "qty-first", "prompt": "qty 40 2p 30a breakers", "expect": 700.0}
+{"id": "messy-10", "type": "quote", "tag": "cut-wire", "prompt": "75' of 10/2 nm w/ground", "expect": 107.94}
+{"id": "messy-11", "type": "unknown", "tag": "special-order-ser", "prompt": "do u have 4/0 al SER? need 150'", "expect": "NOT IN VAULT"}
+{"id": "messy-12", "type": "quote", "tag": "recept-pieces", "prompt": "50 single gang new work boxes + 50 15a TR duplex recepts", "expect": 106.7}
+{"id": "messy-13", "type": "unknown", "tag": "special-order-panel", "prompt": "price a 200A 40 space panel, outdoor (rainproof)", "expect": "NOT IN VAULT"}
+{"id": "messy-14", "type": "quote", "tag": "contractor-two-lines", "prompt": "on our contractor account: 12 20A GFCI recepts and 12 WP in-use covers", "expect": 324.19}
+{"id": "messy-15", "type": "unknown", "tag": "missing-qty", "prompt": "need 4 of the 150w high bays and some 1/2 emt", "expect": "NOT IN VAULT"}
