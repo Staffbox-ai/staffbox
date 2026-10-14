@@ -2,13 +2,18 @@
 
 [![ci](https://github.com/Staffbox-ai/staffbox/actions/workflows/ci.yml/badge.svg)](https://github.com/Staffbox-ai/staffbox/actions/workflows/ci.yml)
 
-**Your first agentic worker. One box, on your network, with a brain you own and a score you can check.**
+**Staffbox runs Hermes Agent on local open-weight models on a Mac mini to draft quotes and replies from a company's own price list, and on a 16 GB Mac mini it scored 351 of 360 messy generated requests with 0 wrong totals in 475 graded answers.**
 
-Staffbox is an open stack for running an agentic AI worker on a Mac mini inside a small company's own network. It runs an open-source agent on local open-weight models. Its memory is a **brain**: a plain Markdown vault the company owns and can open in Obsidian. The company's existing IT provider installs and manages the box. The worker goes live on a workflow only after a **scorecard** on that company's own past requests meets a pass mark agreed in advance.
+The proof, all on fictional demo companies and graded by machine (no customer site has run it yet):
+- **Exact quotes on a 16 GB Mac mini.** `qwen3:8b` with the brain and quote action v2.4, 6 October 2026: Fieldstone IT 40/40, Peachtree Cabinet Works 39/40, messy requests 19/20 and 15/15, generated requests 351/360. Of the 11 misses, 10 declined and asked the customer and 1 was a routing miss. Files: [Fieldstone](evals/results/2026-10-06-fieldstone-it-tests-mac-mini-m4-16gb-qwen3-8b-quote-v2.4.md) · [Peachtree](evals/results/2026-10-06-peachtree-cabinet-works-tests-mac-mini-m4-16gb-qwen3-8b-quote-v2.4.md) · [messy 20](evals/results/2026-10-06-fieldstone-it-tests-heldout-ugly-mac-mini-m4-16gb-qwen3-8b-quote-v2.4.md) · [messy 15](evals/results/2026-10-06-fieldstone-it-tests-heldout-ugly2-mac-mini-m4-16gb-qwen3-8b-quote-v2.4.md) · [generated 204](evals/results/2026-10-06-fieldstone-it-tests-generated-mac-mini-m4-16gb-qwen3-8b-quote-v2.4.md) · [generated 156](evals/results/2026-10-06-peachtree-cabinet-works-tests-generated-mac-mini-m4-16gb-qwen3-8b-quote-v2.4.md).
+- **The brain does most of the work, not the model.** Without the brain, `qwen3:8b` scored 1/40 on Fieldstone IT; with the brain and the quote action, 40/40. A cloud model (Gemini Pro) with the same brain matched on clean requests (39/40) but scored 14/20 on messy ones, where the local 8B model with the quote action scored 19/20. Details: [Scorecard](#scorecard) and [evals/results](evals/results/).
+- **Every graded answer is public.** Browse each answer, miss and raw output in the [Hugging Face scorecard Space](https://huggingface.co/spaces/staffbox/scorecard), or read the files in [`evals/results/`](evals/results/).
+
+Staffbox is an open stack for running an agentic AI worker on a Mac mini inside a small company's own network. It runs an open-source agent on local open-weight models. Its memory is a **brain**: a plain Markdown vault the company owns and can open in Obsidian. The company's existing IT provider installs and manages the box. The worker goes live on a workflow only after a **scorecard** on that company's own past requests meets a pass mark agreed in advance. It writes drafts only: there is no sending code, and a person sends.
 
 This repository is the stack. The managed service, the hardware program and the partner channel are what Staffbox, Inc. sells around it.
 
-## See it in two minutes
+## Quick start: see it work in two minutes, then install a unit in about an hour
 
 ```sh
 git clone https://github.com/Staffbox-ai/staffbox && cd staffbox
@@ -21,9 +26,39 @@ bin/staffbox eval examples/fieldstone-it/vault examples/fieldstone-it/tests.json
 
 Python 3 standard library only, so there's nothing to install. `ask` and `eval` need [Ollama](https://ollama.com) running a model.
 
+To install a full unit (Ollama, Hermes Agent, the worker profile and the brain) on a Mac mini, follow [docs/install.md](docs/install.md). The one command:
+
+```sh
+xcode-select --install          # click Install on the Mac's screen once; about 10 minutes
+git clone https://github.com/Staffbox-ai/staffbox ~/staffbox-src && ~/staffbox-src/scripts/install.sh
+```
+
 Two demo brains, both fictional, each with a 40-question test set (16 quotes, 10 policy or runbook questions, 8 emails to route, and 6 questions the brain *cannot* answer, where the right answer is "not in the vault" plus who to ask):
 - `examples/peachtree-cabinet-works`: a Georgia cabinet-door maker. Price list, species and finish surcharges, volume discounts, five policies, three SOPs.
 - `examples/fieldstone-it`: an IT provider. Hardware price list with setup fees, labor rates, response times, backups, patching, approvals, onboarding, offboarding and MFA runbooks, three client notes with their own rules, and inbox queues.
+
+## Running Hermes Agent with local models? Read these
+
+Hermes Agent refuses local model windows below 64K tokens, and Ollama's default window is 4K on machines with less than 24 GiB of GPU memory ([Ollama docs](https://docs.ollama.com/context-length)). The repo fix is in [docs/hermes-64k-context.md](docs/hermes-64k-context.md). The longer guides on staffbox.ai:
+
+| Guide | What it answers |
+|---|---|
+| [Hermes Agent for business](https://staffbox.ai/hermes-agent/) | What Hermes Agent gives and what Staffbox adds |
+| [Hermes Agent 64K context](https://staffbox.ai/hermes-agent/64k-context/) | qwen3, Ollama and what we know about the 64K minimum |
+| [Hermes Agent with Ollama](https://staffbox.ai/hermes-agent/ollama/) | The Ollama settings that worked for us |
+| [Best local model for Hermes Agent](https://staffbox.ai/hermes-agent/local-models/) | Local models compared by their scores on quoting |
+| [Is Hermes Agent safe for company data?](https://staffbox.ai/hermes-agent/security/) | What we turn off, and why |
+| [Install Hermes Agent on a Mac mini](https://staffbox.ai/hermes-agent/install-on-mac-mini/) | The Staffbox installer, step by step |
+
+Staffbox is not affiliated with Nous Research. Hermes Agent is Nous Research's open-source project (MIT).
+
+## For businesses: send three requests, get the drafts back within 2 business days
+
+Send three recurring requests you get (quotes, orders, routine questions) and get back what Staffbox would have drafted, misses included. Free, drafts back within 2 business days: [staffbox.ai/free-ai-quote-test](https://staffbox.ai/free-ai-quote-test/) or sales@staffbox.ai.
+
+## For IT providers: an AI offer you install and manage for your clients
+
+Staffbox is sold and supported through managed IT providers, who install and manage the box. The partner offer: [staffbox.ai/partners/msp-ai-offer](https://staffbox.ai/partners/msp-ai-offer/) or partners@staffbox.ai.
 
 ## Scorecard
 
@@ -101,7 +136,7 @@ Full scorecards with every miss and every raw answer: Fieldstone [8B](evals/resu
 | `scripts/bench.py` | Tokens per second at 1, 2 and 4 concurrent requests |
 | `scripts/hooks/pre-commit` | Stops a broken brain or an edited log line from being committed |
 | `evals/results/` | Every published scorecard, with raw answers |
-| `docs/` | [install](docs/install.md), [connect from your computer](docs/connect.md), [hardware](docs/hardware.md), [brain](docs/brain.md), [architecture](docs/architecture.md), [data policy](docs/data-policy.md), [measurements](docs/measurements.md) |
+| `docs/` | [install](docs/install.md), [connect from your computer](docs/connect.md), [hardware](docs/hardware.md), [brain](docs/brain.md), [architecture](docs/architecture.md), [data policy](docs/data-policy.md), [measurements](docs/measurements.md), [Hermes 64K context](docs/hermes-64k-context.md) |
 
 ## How a site goes live
 
@@ -125,8 +160,12 @@ Inference and the brain stay on the customer's LAN. Connected tools such as emai
 
 30 September 2026: v0.1. One unit runs inside Staffbox itself ("Zero"). No customer site is live yet; the first trial install is planned for October.
 
+## Security
+
+Report a vulnerability to security@staffbox.ai, not in a public issue. Policy and scope: [SECURITY.md](SECURITY.md). How a unit is hardened: [docs/data-policy.md](docs/data-policy.md).
+
 ## License
 
 MIT for everything in this repository. Hermes Agent and Ollama carry their own MIT licenses. Model weights carry their own licenses, so check them before you ship.
 
-Staffbox, Inc. (in formation, Delaware). Founder: Hadi Irvani. [staffbox.ai](https://staffbox.ai)
+Staffbox, Inc. (in formation, Delaware) is a team of six, staff and contractors. Sales: sales@staffbox.ai · IT providers: partners@staffbox.ai · Security: security@staffbox.ai · [staffbox.ai](https://staffbox.ai)
