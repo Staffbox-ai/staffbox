@@ -26,3 +26,5 @@ jobs:
         run: python examples/fieldstone-it/make_tests.py | diff - examples/fieldstone-it/tests.jsonl
       - name: Fieldstone brain is healthy
         run: bin/staffbox check examples/fieldstone-it/vault
+      - name: Ponce brain is healthy (dev set)
+        run: bin/staffbox check examples/ponce-electric-supply/vault

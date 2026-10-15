@@ -1,0 +1,52 @@
+{
+  "_about": "What a correct model extraction looks like for every price request in the two DEV sets (Ponce, Chattahoochee). scripts/offline_check.py fixes the model's reply to these lines, so only code is graded: unit conversion, matched sets, the rule order and every decline. Standard-set quote lines not listed here are read from the prompt (SKU code or exact description, and the number before ft/lb/x/of). Written by hand from the prompts, 15 Oct 2026.",
+  "ponce-electric-supply": {
+    "tests.jsonl": {
+      "unknown-01": "QUOTE: sku=400A meter-main combo; qty=10",
+      "unknown-03": "QUOTE: sku=PG2-50; qty=4",
+      "unknown-04": "QUOTE: sku=W-THHN2-BK; qty=300; unit=ft"
+    },
+    "tests-messy.jsonl": {
+      "messy-01": "QUOTE: sku=W-NM12-2; qty=250; unit=ft\nQUOTE: sku=PB1-20; qty=6",
+      "messy-02": "QUOTE: sku=WN-YL-100; qty=2; unit=box\nQUOTE: sku=WN-RD-100; qty=1; unit=box",
+      "messy-03": "QUOTE: sku=CD-EMT-075; qty=200; unit=ft",
+      "messy-04": "QUOTE: sku=LT-DL6; qty=60",
+      "messy-05": "QUOTE: sku=W-THHN12-BK; qty=1000; unit=ft",
+      "messy-06": "QUOTE: sku=W-NM12-2; qty=0\nQUOTE: sku=BX-1G-OW; qty=10",
+      "messy-07": "QUOTE: sku=WN-YL-100; qty=300",
+      "messy-08": "QUOTE: sku=LT-FP24; qty=8\nQUOTE: sku=LT-EXC; qty=2",
+      "messy-09": "QUOTE: sku=PB2-30; qty=40",
+      "messy-10": "QUOTE: sku=W-NM10-2; qty=75; unit=ft",
+      "messy-11": "QUOTE: sku=W-SER4/0-AL; qty=150; unit=ft",
+      "messy-12": "QUOTE: sku=BX-1G-NW; qty=50\nQUOTE: sku=RC-15TR-10; qty=50",
+      "messy-13": "QUOTE: sku=LC-200-40-OD; qty=1",
+      "messy-14": "QUOTE: sku=RC-GF20; qty=12\nQUOTE: sku=CV-WP-INUSE; qty=12",
+      "messy-15": "QUOTE: sku=LT-HB150; qty=4\nQUOTE: sku=CD-EMT-050; qty=1"
+    }
+  },
+  "chattahoochee-plumbing-hvac": {
+    "tests.jsonl": {
+      "quote-09": "QUOTE: sku=FC-CP050-50; qty=4",
+      "unknown-01": "QUOTE: sku=4-ton heat pump; qty=2",
+      "unknown-03": "QUOTE: sku=WH-HP50; qty=1",
+      "unknown-04": "QUOTE: sku=CP-K075-20; qty=100; unit=ft"
+    },
+    "tests-messy.jsonl": {
+      "messy-01": "QUOTE: sku=CP-L075-20; qty=60; unit=ft\nQUOTE: sku=FC-EL075; qty=10",
+      "messy-02": "QUOTE: sku=PX-A050-300; qty=2; unit=coil\nQUOTE: sku=PF-EXR050-50; qty=1; unit=bag",
+      "messy-03": "QUOTE: sku=PF-CR050-100; qty=200",
+      "messy-04": "QUOTE: sku=WH-G50; qty=3\nQUOTE: sku=WA-XT2; qty=3",
+      "messy-05": "QUOTE: sku=AC-36-14; qty=1\nQUOTE: sku=AH-36-V; qty=1",
+      "messy-06": "QUOTE: sku=AC-42-14; qty=1\nQUOTE: sku=AH-48-V; qty=1",
+      "messy-07": "QUOTE: sku=RF-410A-25; qty=50; unit=lb",
+      "messy-08": "QUOTE: sku=RF-454B-20; qty=30; unit=lb",
+      "messy-09": "QUOTE: sku=CP-M050-10; qty=45; unit=ft",
+      "messy-10": "QUOTE: sku=type L copper pipe; qty=100; unit=ft\nQUOTE: sku=ball valve; qty=4",
+      "messy-11": "QUOTE: sku=FL-16251-M8; qty=24\nQUOTE: sku=FL-20251-M11; qty=12",
+      "messy-12": "QUOTE: sku=WH-HP50; qty=2",
+      "messy-13": "QUOTE: sku=PX-B075-100; qty=1; unit=roll\nQUOTE: sku=PF-TE075; qty=25\nQUOTE: sku=VL-BV075-PX; qty=6",
+      "messy-14": "QUOTE: sku=CP-L075-20; qty=30; unit=ft",
+      "messy-15": "QUOTE: sku=PX-A050-500; qty=750; unit=ft"
+    }
+  }
+}

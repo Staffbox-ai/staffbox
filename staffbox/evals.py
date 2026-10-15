@@ -105,10 +105,16 @@ ROUTE = (
 def route_quote(host, model, pricing, question, num_ctx=None):
     """Action routing: a short dedicated call decides whether this is a quote and extracts one line per item
     (SKU, quantity, setup, options). Code prices every line and adds them up. Returns (answer text or "", tokens, calls)."""
-    skus = "; ".join(f"{k} = {v['desc']}" for k, v in pricing["skus"].items())
+    tag = lambda v: (f" [{v['unit']}]" if v.get("unit") else "") + ("" if v.get("stock", True) else f" ({v['stock_label']})")
+    skus = "; ".join(f"{k} = {v['desc']}{tag(v)}" for k, v in pricing["skus"].items())
     opts = "".join(f"Options for {a}: {', '.join(t)}\n" for a, t in pricing["surcharges"].items())
     optfmt = "".join(f"; {a}=<value if named>" for a in pricing["surcharges"])
-    text = actions.words_to_digits(question)
+    if any(v.get("unit") for v in pricing["skus"].values()):  # trade price books: keep the customer's own number and unit
+        optfmt += "; unit=<the unit word written after the number (ft, lb, box, bag, case, piece, reel, coil, stick, cylinder), or blank>"
+        opts += "Write qty exactly as the customer wrote it (300 pieces -> qty=300; 200 ft -> qty=200; 50 lb -> qty=50); code converts units. 'x2' or '2x' next to an item means 2 of it.\n"
+    raw = actions.words_to_digits(question)  # the customer's words: units and quantities are read from these
+    text = actions.expand_synonyms(pricing, raw)  # the shop's shorthand, rewritten into price-book words
+    level = actions.account_level(pricing, raw) or actions.account_level(pricing, text)  # the shop's shorthand may name it
     out, n = chat(host, model, [{"role": "system", "content": ROUTE.format(skus=skus, opts=opts, optfmt=optfmt)},
                                 {"role": "user", "content": text}], num_ctx)
     if re.search(r"\bUNCLEAR\b", out) and "QUOTE:" not in out:
@@ -135,13 +141,18 @@ def route_quote(host, model, pricing, question, num_ctx=None):
             parsed.append(actions.parse_quote_line(ln))
         except Exception:
             return "", n, 0
-    nums = {int(x) for x in re.findall(r"(?<![\w.])(\d{1,5})(?![\w.%])", text)}
+    parsed = list(dict.fromkeys((s, q, tuple(sorted(o.items()))) for s, q, o in parsed))  # the same line twice is one line
+    parsed = [(s, q, dict(o)) for s, q, o in parsed]
+    lines = [f"sku={s}; qty={q}" + "".join(f"; {k}={v}" for k, v in o.items()) for s, q, o in parsed]
+    nums = {int(x) for x in re.findall(r"(?<![\w./])(\d{1,5})(?![\w.%/])", text)}
     by_sku = {}
     for sku, qty, _ in parsed:
         by_sku[sku] = by_sku.get(sku, 0) + qty
     if len(lines) > 1 and any(q not in nums for k, q in by_sku.items() if sum(1 for p in parsed if p[0] == k) > 1):
         return ("The same item appears on several lines and the quantities do not add up to a number in the request.\n"
                 "ANSWER: NOT IN VAULT: quantities unclear (possible double count). Ask the customer to confirm the split."), n, 0
+    vague = re.search(r"\b(?:some|several|a few|a couple|a bunch|enough|whatever)\b", raw, re.I)
+    items = []  # (sku, qty in the customer's unit, options) after the request text has checked the model's reading
     for ln in lines:
         try:
             sku, qty, o = actions.parse_quote_line(ln)
@@ -152,22 +163,66 @@ def route_quote(host, model, pricing, question, num_ctx=None):
                 sku = actions.match_description(pricing, sku) or sku
             if bad and {v for _, v, _, _ in actions._specs(ln + " " + pricing["skus"].get(sku, {}).get("desc", ""))} & bad:
                 continue  # the unstocked item the customer said to leave out, whatever SKU the model wrote for it
-            if sku in pricing["skus"] and not actions.supported(pricing, text, sku):
-                return ("The request does not name one stocked item exactly; it may be a special order.\n"
-                        "ANSWER: NOT IN VAULT: the request does not name one stocked item exactly. Ask the customer which model, "
-                        "or the person who owns pricing if it is a special order."), n, len(lines)
+            if vague and qty not in nums and not (qty == 1 and re.search(r"\b(?:a|an|one)\b", raw, re.I)):
+                return ("The request does not say how many of every item.\n"
+                        f"ANSWER: NOT IN VAULT: quantity not stated ('{vague.group(0)}'). Ask the customer how many."), n, len(lines)
+        except Exception:
+            return "", n, 0
+        items.append((sku, qty, o))
+    if len(items) > 1:  # a line made only of words from another line's item ("R-454B" in a unit's description) is an echo
+        keep = [it for it in items if it[0] not in pricing["skus"] or actions.supported(pricing, text, it[0])
+                or not any(actions.echo_of(pricing, text, it[0], o[0]) for o in items if o[0] != it[0])]
+        items = keep or items
+    for sku, _, _ in items:  # the request gives this item a size or rating it does not have ("3.5 ton condenser")
+        if why := actions.spec_conflict(pricing, text, sku):
+            return f"{why}.\nANSWER: NOT IN VAULT: {why}.", n, len(lines)
+    try:  # matched sets: every part of one row -> that row; parts that are not one row -> ask
+        items, kit_notes = actions.match_kits(pricing, items)
+    except actions.Ask as e:
+        return f"{e}.\nANSWER: NOT IN VAULT: {e}.", n, len(lines)
+    for sku, _, _ in items:  # checked after matched sets: "condenser + matching air handler" fits the set row best
+        if sku in pricing["skus"] and not actions.supported(pricing, text, sku):
+            return ("The request does not name one stocked item exactly; it may be a special order.\n"
+                    "ANSWER: NOT IN VAULT: the request does not name one stocked item exactly. Ask the customer which model, "
+                    "or the person who owns pricing if it is a special order."), n, len(lines)
+    final = []  # (SKU after the package pick, quantity the model wrote)
+    for sku, qty, o in items:
+        q0 = qty
+        try:
             if o.get("setup", "yes").lower() in ("no", "none", "false", "without", "0") and not actions.says_no_setup(text):
                 o["setup"] = "yes"  # setup is only dropped when the customer says so
-            t, work = actions.quote(pricing, sku, qty, o)
+            t, work, conv = None, "", ""
+            if sku in pricing["skus"] and pricing["skus"][sku].get("stock", True):
+                qty, conv = actions.to_unit(pricing, sku, qty, raw, o.get("unit"), text)
+                if qty is None:
+                    work = conv
+                else:  # the same item in another package size (10 / 20 ft stick, 100 / 300 ft coil)
+                    sku2, why = actions.pick_package(pricing, sku, qty, text)
+                    if sku2 is None:
+                        work = why
+                    elif sku2 != sku:
+                        sku, conv = sku2, "; ".join(x for x in (conv, why) if x)
+            if not work:
+                t, work = actions.quote(pricing, sku, qty, o, level)
+                work = (f"{conv}; " if t is not None and sku in pricing["skus"] and conv else "") + work
         except Exception:
             return "", n, len(works) + 1
         if t is None:
             return f"{work}.\nANSWER: NOT IN VAULT: {work}. Ask the person who owns pricing (see people).", n, len(lines)
         works.append(work); total += t
+        final.append((sku, q0))
+    dup = {s for s, _ in final if sum(1 for x, _ in final if x == s) > 1}
+    if dup and any(q not in nums for s, q in final if s in dup):
+        return ("The same item appears on several lines (in different package sizes or quantities) and they do not match the request.\n"
+                "ANSWER: NOT IN VAULT: quantities unclear (possible double count). Ask the customer to confirm the split."), n, 0
+    if kit_notes and works:
+        works[0] = "; ".join(kit_notes) + "; " + works[0]
     if not works:
         return "", n, 0
     total = round(total, 2)
     note = f"; not quoted, not stocked: {', '.join(skipped)}" if skipped else ""
+    if pricing.get("levels"):  # say which price level was used
+        note += f"; {level} level" if level and level != "list" else "; list price" + ("" if level else ", no account level named")
     if len(works) == 1:
         return f"Quote action: {works[0]}.\nANSWER: ${total:,.2f}" + (f" (1 line{note})" if note else ""), n, 1
     return "Quote action:\n" + "\n".join(f"- {w}" for w in works) + f"\nANSWER: ${total:,.2f} ({len(works)} lines{note})", n, len(works)

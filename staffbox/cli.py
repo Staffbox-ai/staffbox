@@ -78,8 +78,14 @@ def main(argv=None):
     if a.cmd == "quote":
         pricing = actions.load_pricing(a.vault)
         opts = dict(o.split("=", 1) for o in a.opt if "=" in o)
-        sku, qty, opts = actions.resolve(pricing, a.request, a.sku.upper(), a.qty, opts)
-        total, work = actions.quote(pricing, sku, qty, opts)
+        raw = actions.words_to_digits(a.request)
+        sku, qty, opts = actions.resolve(pricing, actions.expand_synonyms(pricing, raw), a.sku.upper(), a.qty, opts)
+        total, work = None, ""
+        if sku in pricing["skus"] and pricing["skus"][sku].get("stock", True):
+            qty, work = actions.to_unit(pricing, sku, qty, raw, opts.get("unit"))
+        if qty is not None:
+            total, w = actions.quote(pricing, sku, qty, opts, actions.account_level(pricing, raw))
+            work = f"{work}; {w}" if work and total is not None else w
         print(work if total is None else f"{work}\nANSWER: ${total:,.2f}")
         sys.exit(0 if total is not None else 2)
     if a.cmd == "log":
