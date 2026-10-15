@@ -1,0 +1,15 @@
+{"id": "messy-01", "type": "quote", "tag": "multi-abbrev", "prompt": "need 50 2x4x8 kd and 20 sheets 3/4 cdx. thx", "expect": 1140.78}
+{"id": "messy-02", "type": "quote", "tag": "pt-shorthand", "prompt": "pt 4x4x10 x 12 + 700 3in deck screws", "expect": 253.96}
+{"id": "messy-03", "type": "quote", "tag": "board-feet-from-pieces", "prompt": "12 pcs 1x6x8 poplar", "expect": 232.8}
+{"id": "messy-04", "type": "quote", "tag": "board-feet-builder", "prompt": "220 bf 4/4 red oak, builder acct", "expect": 1333.42}
+{"id": "messy-05", "type": "unknown", "tag": "missing-length", "prompt": "need 60 2x6s and 10 lbs of 16d for the Ashford job", "expect": "NOT IN VAULT"}
+{"id": "messy-06", "type": "quote", "tag": "full-unit", "prompt": "full unit of 2x4x10 kd, our acct", "expect": 1050.17}
+{"id": "messy-07", "type": "quote", "tag": "bags-to-pallet", "prompt": "50 80s pls", "expect": 298.0}
+{"id": "messy-08", "type": "quote", "tag": "contractor-deck-lines", "prompt": "contractor acct: 30 pt 2x6x12, 10 pt 2x10x12, 25 2x10 hangers, 25 lb 16d galv", "expect": 732.66}
+{"id": "messy-09", "type": "quote", "tag": "trim-cut", "prompt": "180 lf 3-1/4 base primed", "expect": 214.4}
+{"id": "messy-10", "type": "quote", "tag": "trim-sticks-builder", "prompt": "6 sticks 2-1/4 casing, builder pricing", "expect": 82.79}
+{"id": "messy-11", "type": "unknown", "tag": "special-order-door", "prompt": "need 3 3/0 steel ext doors prehung, what's the price", "expect": "NOT IN VAULT"}
+{"id": "messy-12", "type": "unknown", "tag": "door-no-hand", "prompt": "4 2/8 6 panel prehung interior doors", "expect": "NOT IN VAULT"}
+{"id": "messy-13", "type": "quote", "tag": "delivered-zone-1", "prompt": "drop to Chamblee: 40 studs + 10 sheets 7/16 osb", "expect": 396.54}
+{"id": "messy-14", "type": "unknown", "tag": "delivery-unknown-zone", "prompt": "send 100 2x4x8 kd out to Gainesville tmrw", "expect": "NOT IN VAULT"}
+{"id": "messy-15", "type": "quote", "tag": "builder-pallets-delivered", "prompt": "builder acct, 2 pallets 60lb concrete + 10 bags type s, deliver to Decatur", "expect": 681.76}
