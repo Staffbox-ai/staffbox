@@ -1,0 +1,40 @@
+{"id": "quote-01", "type": "quote", "tag": "pex", "prompt": "Quote 300 ft of PEX-A tubing 1/2in, white, 300 ft coil (PX-A050-300). What is the line total?", "expect": 174.0}
+{"id": "quote-02", "type": "quote", "tag": "each", "prompt": "Quote 100 x water heater drain pan, 22in (WA-PAN22). What is the line total?", "expect": 1702.0}
+{"id": "quote-03", "type": "quote", "tag": "pipe", "prompt": "Quote 120 ft of type L hard copper pipe 3/4in, 20 ft stick (CP-L075-20). What is the line total?", "expect": 552.0}
+{"id": "quote-04", "type": "quote", "tag": "contr", "prompt": "Quote 40 x PEX brass tee 3/4in, barb (PF-TE075) for a contractor account. What is the line total?", "expect": 133.06}
+{"id": "quote-05", "type": "quote", "tag": "pro", "prompt": "Trade Pro account: price 120 of VL-PRV075 at Trade Pro level.", "expect": 8070.24}
+{"id": "quote-06", "type": "quote", "tag": "equip", "prompt": "Quote 2 x AC condenser 5 ton, 14.3 SEER2, R-454B (AC-60-14). What is the line total?", "expect": 7040.0}
+{"id": "quote-07", "type": "quote", "tag": "refrig", "prompt": "Quote 120 lb of R-454B refrigerant, 20 lb cylinder (RF-454B-20). What is the line total?", "expect": 2682.0}
+{"id": "quote-08", "type": "quote", "tag": "pro", "prompt": "Quote 40 x PEX brass tee 1/2in, barb (PF-TE050) for a Trade Pro account. What is the line total?", "expect": 62.02}
+{"id": "quote-09", "type": "quote", "tag": "each", "prompt": "Customer wants 4 of the copper coupling 1/2in with stop, sweat, bag of 50, list price. How much for the line?", "expect": 112.0}
+{"id": "quote-10", "type": "quote", "tag": "pipe", "prompt": "Quote 150 ft of type M hard copper pipe 3/4in, 10 ft stick (CP-M075-10). What is the line total?", "expect": 532.5}
+{"id": "quote-11", "type": "quote", "tag": "pipe_contr", "prompt": "Contractor account: price 40 feet of CP-M075-20 at contractor level.", "expect": 120.6}
+{"id": "quote-12", "type": "quote", "tag": "contr", "prompt": "Contractor account: price 120 of FC-MA075 at contractor level.", "expect": 407.38}
+{"id": "quote-13", "type": "quote", "tag": "system", "prompt": "Contractor account: price 3 of SYS-60 at contractor level.", "expect": 14904.0}
+{"id": "quote-14", "type": "quote", "tag": "each", "prompt": "Quote 150 x copper tee 3/4in, sweat (FC-TE075). What is the line total?", "expect": 496.8}
+{"id": "quote-15", "type": "quote", "tag": "each", "prompt": "Customer wants 150 of the full-port brass ball valve 3/4in, PEX barb, list price. How much for the line?", "expect": 1821.6}
+{"id": "quote-16", "type": "quote", "tag": "each", "prompt": "Quote 30 x copper male adapter 3/4in, sweat x male thread (FC-MA075). What is the line total?", "expect": 118.08}
+{"id": "lookup-01", "type": "lookup", "prompt": "What is the refrigerant surcharge on R-410A right now, per pound?", "expect": ["$3.25"]}
+{"id": "lookup-02", "type": "lookup", "prompt": "When did the current R-410A surcharge take effect?", "expect": ["october"]}
+{"id": "lookup-03", "type": "lookup", "prompt": "What do we charge to cut copper pipe?", "expect": ["$3.50"]}
+{"id": "lookup-04", "type": "lookup", "prompt": "How much off list does a Trade Pro account get?", "expect": ["15%"]}
+{"id": "lookup-05", "type": "lookup", "prompt": "How much off list does a contractor account get?", "expect": ["10%"]}
+{"id": "lookup-06", "type": "lookup", "prompt": "What are the will-call counter hours on weekdays?", "expect": ["6:00", "5:00"]}
+{"id": "lookup-07", "type": "lookup", "prompt": "What's the restocking fee on a return?", "expect": ["15%"]}
+{"id": "lookup-08", "type": "lookup", "prompt": "What's the minimum order for free delivery inside I-285?", "expect": ["$750"]}
+{"id": "lookup-09", "type": "lookup", "prompt": "Who can approve a price below a customer's price level?", "expect": ["branch manager"]}
+{"id": "lookup-10", "type": "lookup", "prompt": "What deposit do we take on a special-order item?", "expect": ["30%"]}
+{"id": "triage-01", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Need a price on 2 of the 50 gal gas heaters and 200' of 3/4 L for a job Thursday.\"", "expect": "quote"}
+{"id": "triage-02", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Truck was supposed to drop our condenser at the Decatur job by 10. Where is it? PO 8812.\"", "expect": "order_status"}
+{"id": "triage-03", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Is the Patel Plumbing order ready at the counter yet?\"", "expect": "will_call"}
+{"id": "triage-04", "type": "triage", "prompt": "Route this email to one queue.\n\n\"You sent 1/2 PEX-B instead of PEX-A. Never opened, need to swap it.\"", "expect": "returns"}
+{"id": "triage-05", "type": "triage", "prompt": "Route this email to one queue.\n\n\"The 40 gal electric we installed 8 months ago is leaking from the tank. Homeowner wants it covered.\"", "expect": "warranty"}
+{"id": "triage-06", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Can we get set up on Trade Pro? We did over $300k with you last year.\"", "expect": "credit"}
+{"id": "triage-07", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Please hold my order for pickup Saturday at 7.\"", "expect": "will_call"}
+{"id": "triage-08", "type": "triage", "prompt": "Route this email to one queue.\n\n\"I rep a line of tankless water heaters and would love 15 minutes with your buyer.\"", "expect": "other"}
+{"id": "unknown-01", "type": "unknown", "prompt": "Price 2 of the 4-ton heat pumps.", "expect": "NOT IN VAULT"}
+{"id": "unknown-02", "type": "unknown", "prompt": "What is the warranty term on the air handlers?", "expect": "NOT IN VAULT"}
+{"id": "unknown-03", "type": "unknown", "prompt": "Price 1 of the 50 gal heat pump water heaters (WH-HP50).", "expect": "NOT IN VAULT"}
+{"id": "unknown-04", "type": "unknown", "prompt": "Quote 100 ft of type K copper 3/4in, 20 ft stick (CP-K075-20).", "expect": "NOT IN VAULT"}
+{"id": "unknown-05", "type": "unknown", "prompt": "What does delivery cost to Gainesville?", "expect": "NOT IN VAULT"}
+{"id": "unknown-06", "type": "unknown", "prompt": "Do we carry boilers, and what does a 100,000 BTU one cost?", "expect": "NOT IN VAULT"}
