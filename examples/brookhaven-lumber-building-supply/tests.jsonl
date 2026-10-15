@@ -1,0 +1,40 @@
+{"id": "quote-01", "type": "quote", "tag": "each", "prompt": "Quote 75 x drywall 5/8in type X, 4x8 (SG-DW58X). What is the line total?", "expect": 1261.95}
+{"id": "quote-02", "type": "quote", "tag": "each", "prompt": "Customer wants 100 of the ACX sanded plywood 3/4in, 4x8, list price. How much for the line?", "expect": 6439.0}
+{"id": "quote-03", "type": "quote", "tag": "bags", "prompt": "Quote 120 bags of type S mortar mix 80 lb bag (CM-MS80). What is the total?", "expect": 1000.5}
+{"id": "quote-04", "type": "quote", "tag": "lb", "prompt": "Quote 50 lb of 16d common nails, hot-dip galvanized, bulk (FS-16G-LB). What is the line total?", "expect": 182.5}
+{"id": "quote-05", "type": "quote", "tag": "each", "prompt": "Quote 4 x hurricane tie, galvanized (FS-HT1). What is the line total?", "expect": 3.92}
+{"id": "quote-06", "type": "quote", "tag": "contr", "prompt": "Contractor account: price 24 of SG-CB12 at contractor level.", "expect": 283.78}
+{"id": "quote-07", "type": "quote", "tag": "lumber_builder", "prompt": "Quote 80 x 2x4 x 10 ft kiln-dried SPF #2 (DL-2410) for a builder program account. What is the line total?", "expect": 415.43}
+{"id": "quote-08", "type": "quote", "tag": "lumber", "prompt": "Price 208 pcs of DL-2810 please.", "expect": 2331.72}
+{"id": "quote-09", "type": "quote", "tag": "trim", "prompt": "Price 150 lf of TR-PVC14 please.", "expect": 399.5}
+{"id": "quote-10", "type": "quote", "tag": "builder", "prompt": "Builder account: price 50 of SG-CDX12 at builder level.", "expect": 1340.06}
+{"id": "quote-11", "type": "quote", "tag": "lumber", "prompt": "Quote 40 pieces of 2x12 x 12 ft kiln-dried SYP #2 (DL-21212). What is the line total?", "expect": 940.8}
+{"id": "quote-12", "type": "quote", "tag": "lumber", "prompt": "Quote 40 pieces of 2x4 precut stud 92-5/8in, kiln-dried SPF (DL-24PC). What is the line total?", "expect": 173.04}
+{"id": "quote-13", "type": "quote", "tag": "builder", "prompt": "Builder account: price 24 of SG-CDX34 at builder level.", "expect": 961.84}
+{"id": "quote-14", "type": "quote", "tag": "contr", "prompt": "Contractor account: price 10 of FS-DS3-350 at contractor level.", "expect": 305.03}
+{"id": "quote-15", "type": "quote", "tag": "board_feet", "prompt": "Quote 40 board feet of red oak 4/4 S4S (HW-ROAK-4). What is the line total?", "expect": 290.0}
+{"id": "quote-16", "type": "quote", "tag": "each", "prompt": "Customer wants 6 of the drywall screws 1-5/8in, coarse thread, box of 1000, list price. How much for the line?", "expect": 112.5}
+{"id": "lookup-01", "type": "lookup", "prompt": "What is the market adjustment on dimensional lumber right now?", "expect": ["5%"]}
+{"id": "lookup-02", "type": "lookup", "prompt": "When did the current lumber market adjustment take effect?", "expect": ["october"]}
+{"id": "lookup-03", "type": "lookup", "prompt": "What do we charge to cut trim?", "expect": ["$2.00"]}
+{"id": "lookup-04", "type": "lookup", "prompt": "How much off list does a builder account get?", "expect": ["12%"]}
+{"id": "lookup-05", "type": "lookup", "prompt": "How much off list does a contractor account get?", "expect": ["8%"]}
+{"id": "lookup-06", "type": "lookup", "prompt": "What are the will-call yard hours on weekdays?", "expect": ["6:30", "5:00"]}
+{"id": "lookup-07", "type": "lookup", "prompt": "What's the restocking fee on a return?", "expect": ["20%"]}
+{"id": "lookup-08", "type": "lookup", "prompt": "What's the delivery fee to Dunwoody?", "expect": ["$55"]}
+{"id": "lookup-09", "type": "lookup", "prompt": "Who can approve a price below a customer's account level?", "expect": ["general manager"]}
+{"id": "lookup-10", "type": "lookup", "prompt": "What deposit do we take on a special-order item?", "expect": ["50%"]}
+{"id": "triage-01", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Need pricing on 40 pt 2x10x16 and 30 sheets of 3/4 cdx for a deck job Thursday.\"", "expect": "quote"}
+{"id": "triage-02", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Truck was supposed to drop the framing package at our Dunwoody lot by 7. PO 2291, where is it?\"", "expect": "order_status"}
+{"id": "triage-03", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Is the Okafor Builders order pulled and ready at the yard yet?\"", "expect": "will_call"}
+{"id": "triage-04", "type": "triage", "prompt": "Route this email to one queue.\n\n\"The 20 pt 2x6x12 you delivered yesterday are badly twisted. Want to send them back.\"", "expect": "returns"}
+{"id": "triage-05", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Need a price and lead time on 14 vinyl single-hung windows 3/0 x 5/0 for a new build.\"", "expect": "millwork"}
+{"id": "triage-06", "type": "triage", "prompt": "Route this email to one queue.\n\n\"We'd like to get on the builder program. We started 30 homes this year.\"", "expect": "credit"}
+{"id": "triage-07", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Our two fiberglass entry doors were ordered three weeks ago. Have they come in?\"", "expect": "millwork"}
+{"id": "triage-08", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Are you hiring forklift drivers for the yard?\"", "expect": "other"}
+{"id": "unknown-01", "type": "unknown", "prompt": "Price 12 LVL beams, 1-3/4 x 11-7/8, 20 ft.", "expect": "NOT IN VAULT"}
+{"id": "unknown-02", "type": "unknown", "prompt": "What is the warranty on the vinyl windows?", "expect": "NOT IN VAULT"}
+{"id": "unknown-03", "type": "unknown", "prompt": "Price 10 of DL-21220 (2x12 x 20 ft).", "expect": "NOT IN VAULT"}
+{"id": "unknown-04", "type": "unknown", "prompt": "Quote 4 prehung exterior steel doors 3/0 x 6/8 (DW-EXT3068-ST).", "expect": "NOT IN VAULT"}
+{"id": "unknown-05", "type": "unknown", "prompt": "What does delivery cost to Athens?", "expect": "NOT IN VAULT"}
+{"id": "unknown-06", "type": "unknown", "prompt": "Do we sell metal roofing panels, and at what price?", "expect": "NOT IN VAULT"}
