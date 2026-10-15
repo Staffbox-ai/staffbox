@@ -22,7 +22,7 @@ Press Enter at each prompt (a passphrase is recommended). Send the one line it p
 ```sh
 echo 'ssh-ed25519 AAAA… your.name@company' >> ~/.ssh/authorized_keys
 ```
-To remove someone later, delete their line. The unit accepts keys only; password logins over SSH are off.
+To remove someone later, delete their line. Password logins over SSH are off once the IT provider has run the hardening step (`scripts/install.sh --harden-macos`, see [install.md](install.md#3-opt-in-macos-hardening-5-min-needs-an-admin-password)); the unit card says whether it has.
 
 **Test** from your computer (use the unit's IP address; `.local` names do not always resolve on Windows):
 ```sh
