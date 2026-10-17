@@ -1,0 +1,22 @@
+{"id": "p-quote-02", "type": "quote", "prompt": "25 small-business firewalls, FW-SMB, set up and ready. What's the line?", "expect": 35312.5}
+{"id": "p-quote-03", "type": "quote", "prompt": "New office in Marietta needs Wi-Fi: 30 of AP-6E, set up. What do we put on the quote?", "expect": 12653.1}
+{"id": "p-quote-04", "type": "quote", "prompt": "We want 26 PoE switches, model SW-24P, installed. Total for the line?", "expect": 29289.0}
+{"id": "p-quote-05", "type": "quote", "prompt": "25 battery backups (UPS-1500), ready to go. Price the line.", "expect": 8149.25}
+{"id": "p-quote-06", "type": "quote", "prompt": "Fourteen 16in business laptops (LT-16) for our floor supervisors. Include setup.", "expect": 20132.56}
+{"id": "p-quote-07", "type": "quote", "prompt": "Need some USB-C docks -- 24 of DOCK-C, with setup. How much?", "expect": 5285.76}
+{"id": "p-quote-08", "type": "quote", "prompt": "15 of the little desktops (DT-MINI) for the front office, set up. What's the line total?", "expect": 14370.6}
+{"id": "p-quote-09", "type": "quote", "prompt": "Thirty 14in laptops (LT-14) for a new hire batch, setup included.", "expect": 34907.1}
+{"id": "p-unknown-10", "type": "unknown", "prompt": "A mixed cart for one client, please price as one line: 15 DT-MINI with setup, and we need 3 iPads to go with it.", "expect": "NOT IN VAULT"}
+{"id": "p-unknown-11", "type": "unknown", "prompt": "We want 30 monitors on the next order - 24 monitor 24in (MON-24) with setup, plus 1 32in ultrawide (not one we've quoted before).", "expect": "NOT IN VAULT"}
+{"id": "p-unknown-12", "type": "unknown", "prompt": "24 SW-24P PoE switches with setup, and can you stick 2 rack-mount KVMs on the same line?", "expect": "NOT IN VAULT"}
+{"id": "p-lookup-01", "type": "lookup", "prompt": "What discount applies at 100 units of one item?", "expect": ["7%"]}
+{"id": "p-lookup-02", "type": "lookup", "prompt": "When do the workstations get their weekly updates?", "expect": ["wednesday"]}
+{"id": "p-lookup-03", "type": "lookup", "prompt": "How often do we do a test restore for a managed client?", "expect": ["quarterly", "quarter"]}
+{"id": "p-lookup-04", "type": "lookup", "prompt": "Who do I call for a SKU that isn't in the price list?", "expect": ["service director"]}
+{"id": "p-lookup-05", "type": "lookup", "prompt": "What is the P3 response-time target?", "expect": ["4 business hours"]}
+{"id": "p-triage-01", "type": "triage", "prompt": "Route this email to one queue.\n\n\"New hire starting next Tuesday needs a workstation and a monitor. Can you get us a firm price on LT-14 plus MON-24 with setup?\"", "expect": "quote"}
+{"id": "p-triage-02", "type": "triage", "prompt": "Route this email to one queue.\n\n\"We have a new bookkeeper starting next Monday -- her name is Priya Anand.\"", "expect": "onboarding"}
+{"id": "p-triage-03", "type": "triage", "prompt": "Route this email to one queue.\n\n\"I lost my company phone yesterday. It had all our MFA apps and contacts on it.\"", "expect": "security"}
+{"id": "p-triage-04", "type": "triage", "prompt": "Route this email to one queue.\n\n\"The copier on the second floor is jammed every ten minutes this morning.\"", "expect": "service_desk"}
+{"id": "p-triage-05", "type": "triage", "prompt": "Route this email to one queue.\n\n\"The October invoice looks like it charged for the managed plan twice.\"", "expect": "billing"}
+{"id": "p-triage-06", "type": "triage", "prompt": "Route this email to one queue.\n\n\"Do you sponsor the local makers-market vendor day each December?\"", "expect": "other"}
