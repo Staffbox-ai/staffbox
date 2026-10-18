@@ -36,6 +36,15 @@ class Brain(unittest.TestCase):
             self.assertIn("broken link [[nowhere]]", problems)
             self.assertIn("missing 'owner'", problems)
 
+    def test_obsidian_block_list_frontmatter(self):
+        meta, body, err = brain.parse_frontmatter("---\ntype: sop\naliases:\n  - Home\n  - Index\nowner: ops\n---\nBody\n")
+        self.assertIsNone(err)
+        self.assertEqual(meta["aliases"], ["Home", "Index"])
+        self.assertEqual(meta["owner"], "ops")
+        self.assertEqual(body, "Body\n")
+        _, _, err = brain.parse_frontmatter("---\ntype: sop\n  - stray\n---\n")
+        self.assertIn("bad frontmatter line", err)
+
     def test_log_is_append_only_under_git(self):
         with tempfile.TemporaryDirectory() as d:
             shutil.copytree(DEMO, d, dirs_exist_ok=True)
